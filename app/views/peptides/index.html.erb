@@ -1,0 +1,39 @@
+<br/>
+<table>
+    <tr>
+        <th>
+            <form name="myform" action=<%= root_path %> method="POST">
+                <div align="left">
+                    Cutoff:
+                    <select name="mydropdown">
+                        <option value="005">0.05</option>
+                        <option value="05">0.5</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+            </form>
+        </th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
+
+    <tr>
+        <th>Peptide</th>
+        <th>Rank Product</th>
+        <th>Penalized Rank Product</th>
+        <th></th>
+    </tr>
+
+    <% @peptides.each do |peptide| %>
+    <tr>
+        <td><%= peptide.pep_seq %></td>
+        <td><%= peptide.rank_product %></td>
+        <td><%= peptide.penalized_rp %></td>
+        <td><%= link_to 'More', peptide.more %></td>
+    </tr>
+    <% end %>
+</table>
+
+
+        

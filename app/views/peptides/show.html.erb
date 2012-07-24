@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Pep seq:</b>
+  <%= @peptide.pep_seq %>
+</p>
+
+<p>
+  <b>Rank product:</b>
+  <%= @peptide.rank_product %>
+</p>
+
+<p>
+  <b>Penalized rp:</b>
+  <%= @peptide.penalized_rp %>
+</p>
+
+<p>
+  <b>More:</b>
+  <%= @peptide.more %>
+</p>
+
+
+<%= link_to 'Edit', edit_peptide_path(@peptide) %> |
+<%= link_to 'Back', peptides_path %>

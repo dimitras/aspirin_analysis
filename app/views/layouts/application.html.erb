@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= @pagetitle %></title>
+  <%= stylesheet_link_tag    "application", :media => "all" %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+	<div id='pagewrapper'>
+		<div id='header'>
+			<p align = 'center'>Aspirin</p>
+		</div>
+		<div id='navbar'>
+		<ul>
+			<li><%= link_to 'Home', root_path %></li>
+			<li><%= link_to 'Help', root_path %></li>
+			<li><%= link_to 'About', root_path %></li>
+		</ul>
+		<div>
+	</div>
+	<div id='content'>
+		<%= yield %>
+	</div>
+	<div id='footer'>
+		<p>ITMAT @2012</p>
+	</div>
+
+</body>
+</html>

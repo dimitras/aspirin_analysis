@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  pep_seq: MyString
+  rank_product: 1.5
+  penalized_rp: 1.5
+  more: MyString
+
+two:
+  pep_seq: MyString
+  rank_product: 1.5
+  penalized_rp: 1.5
+  more: MyString
