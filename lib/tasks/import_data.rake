@@ -1,6 +1,5 @@
-# USAGE: rake db:load_data --trace
+# USAGE: rake db:load_pep_data --trace
 namespace :db do
-
 	desc "Import table csv data to database using fastercsv"
 	task :load_pep_data  => :environment do
 		require 'rubygems'
