@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  query: MyString
+  title: MyString
+  ions1: MyString
+
+two:
+  query: MyString
+  title: MyString
+  ions1: MyString

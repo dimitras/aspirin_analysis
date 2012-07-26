@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  accno: MyString
+  desc: MyString
+  seq: MyString
+
+two:
+  accno: MyString
+  desc: MyString
+  seq: MyString

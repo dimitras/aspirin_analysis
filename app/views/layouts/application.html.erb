@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title><%= @pagetitle %></title>
+  <title><%= @pagetitle || @page.title %></title>
   <%= stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
@@ -10,13 +10,13 @@
 
 	<div id='pagewrapper'>
 		<div id='header'>
-			<p align = 'center'>Aspirin</p>
+			<p align = 'center'>Aspirin Data Analysis</p>
 		</div>
 		<div id='navbar'>
 		<ul>
 			<li><%= link_to 'Home', root_path %></li>
-			<li><%= link_to 'Help', root_path %></li>
-			<li><%= link_to 'About', root_path %></li>
+			<li><%= link_to 'Help', view_page_path('help') %></li>
+			<li><%= link_to 'About', url_for('about') %></li>
 		</ul>
 		<div>
 	</div>

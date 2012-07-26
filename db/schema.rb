@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120724182055) do
+ActiveRecord::Schema.define(:version => 20120726153554) do
 
   create_table "peptides", :force => true do |t|
     t.string   "pep_seq"
@@ -19,6 +19,33 @@ ActiveRecord::Schema.define(:version => 20120724182055) do
     t.string   "more"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
+  end
+
+  create_table "proteins", :force => true do |t|
+    t.string   "accno"
+    t.string   "desc"
+    t.string   "seq"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "psms", :force => true do |t|
+    t.string   "pep"
+    t.string   "query"
+    t.string   "accno"
+    t.float    "pep_score"
+    t.string   "rep"
+    t.string   "mod"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "spectras", :force => true do |t|
+    t.string   "query"
+    t.string   "title"
+    t.string   "ions1"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
 end
