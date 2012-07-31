@@ -2,7 +2,7 @@ class PeptidesController < ApplicationController
   # GET /peptides
   # GET /peptides.json
   def index
-    @peptides = Peptide.all
+    @peptides = Peptide.paginate(:page => :params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
