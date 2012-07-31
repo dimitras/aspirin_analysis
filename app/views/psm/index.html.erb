@@ -1,0 +1,30 @@
+<br/>
+<table>
+
+	<tr>
+		<th>Peptide</th>
+		<th>Protein Accno</th>
+		<th>Cutoff</th>
+		<th>Genename</th>
+		<th>Modification</th>
+		<th>Peptide score</th>
+		<th>Query number</th>
+		<th>Replicate</th>
+	</tr>
+
+	<% @peptide.psms.each do |psm_record| %>
+		<tr>
+			<td><%= psm_record.pep %></td>
+			<td><%= psm_record.accno %></td>
+			<td><%= psm_record.cutoff %></td>
+			<td><%= psm_record.genename %></td>
+			<td><%= psm_record.mod %></td>
+			<td><%= psm_record.pep_score %></td>
+			<td><%= psm_record.query %></td>
+			<td><%= psm_record.rep %></td>
+		</tr>
+	<% end %>
+</table>
+
+
+        
