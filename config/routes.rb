@@ -3,7 +3,7 @@ AspirinAnalysis::Application.routes.draw do
   # get "viewer/show"
 
   # get "peptides/show"
-  resources :peptides :only => [:index,:show]
+  resources :peptides, :only => [:index,:show]
 
 
   match ':name' => 'viewer#show', :as => :view_page, :format => "html"
