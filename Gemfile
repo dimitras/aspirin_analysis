@@ -21,6 +21,7 @@ end
 gem 'jquery-rails'
 
 gem 'fastercsv'
+gem 'will_paginate', '~> 3.0'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

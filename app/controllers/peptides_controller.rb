@@ -2,7 +2,7 @@ class PeptidesController < ApplicationController
   # GET /peptides
   # GET /peptides.json
   def index
-    @peptides = Peptide.all
+    @peptides = Peptide.paginate(:page => params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -13,7 +13,7 @@ class PeptidesController < ApplicationController
   # GET /peptides/1
   # GET /peptides/1.json
   def show
-	puts "ID: " + params[:pep_seq]
+	  logger.info( "PEPTIDE ID: " + params[:pep_seq])
     @peptide = Peptide.find_by_pep_seq(params[:pep_seq])
 
     respond_to do |format|
