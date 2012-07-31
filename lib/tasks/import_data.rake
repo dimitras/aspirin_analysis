@@ -31,7 +31,8 @@ namespace :db do
 				mfields = row
 			else !mfields.empty?
 				mcols = row
-				Psm.create(:accno => mcols[1], :cutoff => mcols[20], :genename => mcols[] , :mod => mcols[24] , :pep => mcols[22], :pep_score => mcols[19], :query => mcols[9], :rep => mcols[27])
+				#:accno, :cutoff, :genename, :mod, :pep, :pep_score, :query, :rep
+				Psm.create(:accno => mcols[1], :cutoff => mcols[20], :genename => "NA", :mod => mcols[24] , :pep => mcols[22], :pep_score => mcols[19], :query => mcols[9], :rep => mcols[27])
 			end
 		end
 	end
