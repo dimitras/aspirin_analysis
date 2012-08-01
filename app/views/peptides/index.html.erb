@@ -22,15 +22,13 @@
         <th>Peptide</th>
         <th>Rank Product</th>
         <th>Penalized Rank Product</th>
-        <th></th>
     </tr>
 
     <% @peptides.each do |peptide| %>
     <tr>
-        <td><%= peptide.pep_seq %></td>
+        <td><%= link_to(peptide.pep_seq, peptide_path(peptide)) %></td>
         <td><%= peptide.rank_product %></td>
         <td><%= peptide.penalized_rp %></td>
-        <td><%= link_to 'More', peptide.more %></td>
     </tr>
     <% end %>
 </table>

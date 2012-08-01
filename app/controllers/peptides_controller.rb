@@ -17,8 +17,8 @@ class PeptidesController < ApplicationController
   # GET /peptides/1
   # GET /peptides/1.json
   def show
-	  logger.info( "PEPTIDE ID: " + params[:pep_seq])
-    @peptide = Peptide.find_by_pep_seq(params[:pep_seq])
+    @peptide = Peptide.find(params[:id])
+    logger.info( "PEPTIDE: (#{params[:id]}) #{@peptide.pep_seq}")
 
     respond_to do |format|
       format.html # show.html.erb
