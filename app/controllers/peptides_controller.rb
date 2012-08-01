@@ -3,7 +3,7 @@ class PeptidesController < ApplicationController
   # GET /peptides.json
   def index
     if params[:cutoff].to_f() > 0
-      @peptides = Peptide.where(:penalized_rp >  params[:cutoff].to_f()).paginate(:page => params[:page])
+      @peptides = Peptide.where("penalized_rp >= ?" , params[:cutoff].to_f()).paginate(:page => params[:page])
     else
       @peptides = Peptide.paginate(:page => params[:page])
     end
