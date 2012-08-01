@@ -2,16 +2,16 @@
 <table>
     <tr>
         <th>
-            <form name="myform" action=<%= root_path %> method="POST">
-                <div align="left">
-                    Cutoff:
-                    <select name="mydropdown">
-                        <option value="005">0.05</option>
-                        <option value="05">0.5</option>
-                        <option value="10">10</option>
-                    </select>
-                </div>
-            </form>
+          <div align="left">
+            <%= form_for(:peptides, :action => :index, :method => "get") do  %>
+                <%= label_tag(:cutoff, "Rank Product Threshold:") %>
+                <%= select_tag(:cutoff, options_for_select([
+                        ["0.05",0.05],
+                        ["0.5",0.5],
+                        ["10.0",10.0]])) %>
+                <%= submit_tag("filter") %>
+            <% end%>
+          </div>
         </th>
         <th></th>
         <th></th>

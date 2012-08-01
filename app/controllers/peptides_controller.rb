@@ -2,7 +2,11 @@ class PeptidesController < ApplicationController
   # GET /peptides
   # GET /peptides.json
   def index
-    @peptides = Peptide.paginate(:page => params[:page])
+    if params[:cutoff].to_f() > 0
+      @peptides = Peptide.where(:penalized_rp >  params[:cutoff].to_f()).paginate(:page => params[:page])
+    else
+      @peptides = Peptide.paginate(:page => params[:page])
+    end
 
     respond_to do |format|
       format.html # index.html.erb
