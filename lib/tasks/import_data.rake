@@ -20,7 +20,7 @@ namespace :db do
 	end
 
 	# PER PEPTIDE
-	
+
 	# USAGE: rake db:load_hits_data --trace
 	desc "Import hits csv to database using fastercsv"
 	task :load_hits_data  => :environment do
@@ -31,8 +31,7 @@ namespace :db do
 				mfields = row
 			else !mfields.empty?
 				mcols = row
-				#:accno, :cutoff, :genename, :mod, :pep, :pep_score, :query, :rep
-				Psm.create(:accno => mcols[1], :cutoff => mcols[20], :genename => "NA", :mod => mcols[24] , :pep => mcols[22], :pep_score => mcols[19], :query => mcols[9], :rep => mcols[27])
+				Psm.create(:accno => mcols[1],:cutoff => mcols[20],:genename => "NA",:mod => mcols[24],:pep => mcols[22],:pep_score => mcols[19],:query => mcols[9],:rep => mcols[27])
 			end
 		end
 	end
@@ -42,7 +41,7 @@ namespace :db do
 	task :load_proteins_data  => :environment do
 		pfields = []
 		pcols = []
-		FasterCSV.foreach("data/joined_peps_005_cutoff.csv") do |row|
+		FasterCSV.foreach("data/") do |row|
 			if pfields.empty?
 				pfields = row
 			else pfields.empty?
@@ -53,7 +52,7 @@ namespace :db do
 	end
 
 	# USAGE: rake db:load_spectra_data --trace
-	desc "Import proteins to database using fastercsv"
+	desc "Import spectra data to database using fastercsv"
 	task :load_spectra_data  => :environment do
 		sfields = []
 		scols = []
@@ -66,5 +65,5 @@ namespace :db do
 			end
 		end
 	end
-	
+
 end

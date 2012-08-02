@@ -1,17 +1,36 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <b>Pep seq:</b>
-  <%= @peptide.pep_seq %>
-</p>
-
-<p>
-  <b>Rank product:</b>
-  <%= @peptide.rank_product %>
-</p>
-
-<p>
-  <b>Penalized rp:</b>
-  <%= @peptide.penalized_rp %>
-</p>
-
+<table>
+	<tr>
+		<td><b>Peptide:</b>  <%= @peptide.pep_seq %></td>
+	</tr>
+	<tr>
+		<td><b>Rank product:</b>  <%= @peptide.rank_product %></td>
+	</tr>
+	<tr>
+		<td><b>Penalized Rank Product:</b>  <%= @peptide.penalized_rp %></td>
+	</tr>
+</table>
+<br/><br/>
+<table>
+	<tr style="font-weight:bold">
+		<td>Protein accession number</td>
+		<td>Genename</td>
+		<td>Peptide score</td>
+		<td>Cutoff</td>
+		<td>Query</td>
+		<td>Replicate</td>
+		<td>Modification</td>
+	</tr>
+	<% @peptide.psms.each do |psm| %>
+	<tr>
+		<td><%= psm.accno %></td>
+		<td><%= psm.genename %></td>
+		<td><%= psm.pep_score %></td>
+		<td><%= psm.cutoff %></td>
+		<td><%= psm.query %></td>
+		<td><%= psm.rep.split('/')[3].split('.')[0] %></td>
+		<td><%= psm.mod %></td>
+	</tr>
+	<% end %>
+</table>
