@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120802115450) do
+ActiveRecord::Schema.define(:version => 20120806144811) do
 
   create_table "pages", :force => true do |t|
     t.string   "name"
@@ -37,7 +37,7 @@ ActiveRecord::Schema.define(:version => 20120802115450) do
   end
 
   create_table "psms", :force => true do |t|
-    t.string   "pep"
+    t.string   "pep_seq"
     t.string   "query"
     t.string   "accno"
     t.float    "pep_score"
@@ -45,8 +45,14 @@ ActiveRecord::Schema.define(:version => 20120802115450) do
     t.string   "mod"
     t.string   "genename"
     t.float    "cutoff"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+    t.string   "mod_positions"
+    t.string   "title"
+    t.string   "charge"
+    t.string   "rtinseconds"
+    t.text     "mzs"
+    t.text     "intensities"
   end
 
   create_table "spectras", :force => true do |t|

@@ -3,6 +3,9 @@ namespace :db do
 
 	require 'rubygems'
 	require 'fastercsv'
+	require 'pep'
+	require 'mascot/dat'
+	require 'gnuplot'
 
 	# USAGE: rake db:load_pep_data --trace
 	desc "Import table csv data to database using fastercsv"
@@ -21,20 +24,72 @@ namespace :db do
 
 	# PER PEPTIDE
 
-	# USAGE: rake db:load_hits_data --trace
+	# USAGE: rake db:load_psms_data --trace
 	desc "Import hits csv to database using fastercsv"
-	task :load_hits_data  => :environment do
-		mfields = []
-		mcols = []
-		FasterCSV.foreach("data/joined_peps_005_cutoff.csv") do |row|
-			if mfields.empty?
-				mfields = row
-			else !mfields.empty?
-				mcols = row
-				Psm.create(:accno => mcols[1],:cutoff => mcols[20],:genename => "NA",:mod => mcols[24],:pep => mcols[22],:pep_score => mcols[19],:query => mcols[9],:rep => mcols[27])
+	task :load_psms_data  => :environment do
+		csvfile = ARGV[0]
+		# REMEMBER TO uncomment the correct dataset (foldername)
+		foldername = '../data/3H_Ace/'
+		# foldername = '../data/Endogenous_Ace/'
+		FasterCSV.foreach('joined_peps_005_cutoff.csv') do |row|
+			assigned_ions = Array.new()
+			if fieldnames.empty?
+				fieldnames = row
+			elsif !fieldnames.empty?
+				peptide = row[22].to_s
+				prot_accno = row[1].to_s
+				prot_desc = row[2].to_s
+				modification.clear
+				if foldername.include? '3H_Ace'
+					row[24].scan(/Acetyl:.+\(\d\)\s\((\w)\)/).each do |i| #Acetyl:2H(3) (K); 2 Acetyl:2H(3) (S)
+						modification << $1
+					end
+					#get modification positions from string
+					mod_positions_str = row[25].split('')
+					mod_positions.clear
+					mod_positions_str.each_index do |i|
+						if !mod_positions_str[i].include?('0') && modification.include?(peptide.split('')[i])
+							mod_positions << i + 1 #1-based
+						end
+					end
+				elsif foldername.include? 'Endogenous_Ace'
+					row[24].scan(/Acetyl\s\((\w)\)/).each do |i| # Acetyl (K)
+						modification << $1
+					end
+					# get modification positions from string
+					mod_positions_str = row[25].split('')
+					mod_positions.clear
+					mod_positions_str.each_index do |i|
+						if !mod_positions_str[i].include?('0') && modification.include?(peptide.split('')[i])
+							mod_positions << i + 1 #1-based
+						end
+					end
+				end
+
+				query_no = row[9].to_i
+				parent_mass = row[14].to_f
+				calc_mass = row[16].to_f
+				delta = row[17].to_f
+				cutoff = row[20].to_f
+				pep_score = row[19].to_f
+				replicate = row[27].split('/')[3].split('_')[1]
+
+				# take the ions table from dat file
+				filename = foldername + 'dats/' + replicate +  '.dat'
+				dat = Mascot::DAT.open(filename, true)
+				spectrum = dat.query(query_no)
+				title = spectrum.title
+				charge = spectrum.charge
+				rtinseconds = spectrum.rtinseconds
+				mzs = spectrum.mz
+				intensities = spectrum.intensity
+
+				# feed database with psms
+				Psm.create(:accno => prot_accno,:cutoff => cutoff,:genename => "NA",:mod => modification,:pep => peptide,:pep_score => pep_score,:query => query_no,:rep => replicate,:mod_string => mod_positions,:title => title,:charge => charge,:rtinseconds => rtinseconds,:mzs => mzs,:intensities => intensities)
 			end
 		end
 	end
+
 
 	# USAGE: rake db:load_proteins_data --trace
 	desc "Import proteins to database using fastercsv"
