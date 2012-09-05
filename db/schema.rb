@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120806144811) do
+ActiveRecord::Schema.define(:version => 20120905031150) do
 
   create_table "pages", :force => true do |t|
     t.string   "name"
@@ -45,15 +45,19 @@ ActiveRecord::Schema.define(:version => 20120806144811) do
     t.string   "mod"
     t.string   "genename"
     t.float    "cutoff"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
     t.string   "mod_positions"
     t.string   "title"
     t.string   "charge"
     t.string   "rtinseconds"
-    t.text     "mzs"
-    t.text     "intensities"
+    t.binary   "mzs"
+    t.binary   "intensities"
+    t.integer  "peptide_id"
+    t.binary   "assigned_yions"
   end
+
+  add_index "psms", ["peptide_id"], :name => "index_psms_on_peptide_id"
 
   create_table "spectras", :force => true do |t|
     t.string   "query"

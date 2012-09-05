@@ -1,17 +1,15 @@
 <br/>
 <table>
-
-
     <tr>
         <th>
           <div align="left">
-            <%= form_for(:peptides, :action => :index, :method => "get") do  %>
-                <%= label_tag(:cutoff, "Rank Product Threshold:") %>
-                <%= select_tag(:cutoff, options_for_select([
-                        ["0.05",0.05],
-                        ["0.5",0.5],
-                        ["10.0",10.0]])) %>
-                <%= submit_tag("filter") %>
+            <%= form_tag(peptides_path(), :method => "get") do  %>
+                <%= label_tag(:cutoff, "Cutoff threshold:") %>
+                <% cutoffs_array = [["0.05",0.05],
+                                    ["0.5",0.5],
+                                    ["10.0",10.0]] %>
+                <%= select_tag(:cutoff, options_for_select(cutoffs_array), :onchange => 'this.form.submit();') %>
+                <%= submit_tag('filter') %>
             <% end%>
           </div>
         </th>
@@ -23,12 +21,15 @@
         <th>Penalized Rank Product</th>
     </tr>
 
+    <!-- :order => cutoff -->
     <% @peptides.each do |peptide| %>
-    <tr>
-        <td><%= link_to(peptide.pep_seq, peptide_path(peptide)) %></td>
-        <td><%= peptide.rank_product %></td>
-        <td><%= peptide.penalized_rp %></td>
-    </tr>
+       
+        <tr>
+            <td><%= link_to(peptide.pep_seq, peptide_path(peptide)) %></td>
+            <td><%= peptide.rank_product %></td>
+            <td><%= peptide.penalized_rp %></td>
+        </tr>
+       
     <% end %>
 </table>
 
@@ -37,4 +38,4 @@
     <%= page_entries_info @posts %>
   </div>
   <%= will_paginate @posts, :container => false %>
- </div>
+</div>

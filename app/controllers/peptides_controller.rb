@@ -1,12 +1,16 @@
+require 'psm'
+
 class PeptidesController < ApplicationController
   # GET /peptides
   # GET /peptides.json
   def index
-    if params[:cutoff].to_f() > 0
-      @peptides = Peptide.where("penalized_rp >= ?" , params[:cutoff].to_f()).paginate(:page => params[:page])
-    else
-      @peptides = Peptide.paginate(:page => params[:page])
-    end
+    @peptides = Peptide.paginate(:page => params[:page])
+    # @psms = Peptide.joins(:psms)
+    # if params[:cutoff].to_f() <= 0 #Psm.cutoff
+    #   @peptides = Peptide.where("cutoff <= Psm.cutoff" , params[:cutoff].to_f()).paginate(:page => params[:page])
+    # else
+    #   @peptides = Peptide.paginate(:page => params[:page])
+    # end
 
     respond_to do |format|
       format.html # index.html.erb

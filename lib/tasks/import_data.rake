@@ -1,11 +1,9 @@
-
 namespace :db do
 
 	require 'rubygems'
 	require 'fastercsv'
-	require 'pep'
+	require 'pep_dat'
 	require 'mascot/dat'
-	require 'gnuplot'
 
 	# USAGE: rake db:load_pep_data --trace
 	desc "Import table csv data to database using fastercsv"
@@ -22,17 +20,18 @@ namespace :db do
 		end
 	end
 
-	# PER PEPTIDE
 
 	# USAGE: rake db:load_psms_data --trace
 	desc "Import hits csv to database using fastercsv"
 	task :load_psms_data  => :environment do
-		csvfile = ARGV[0]
 		# REMEMBER TO uncomment the correct dataset (foldername)
-		foldername = '../data/3H_Ace/'
-		# foldername = '../data/Endogenous_Ace/'
-		FasterCSV.foreach('joined_peps_005_cutoff.csv') do |row|
-			assigned_ions = Array.new()
+		foldername = 'data/3H_Ace/'
+		# foldername = 'data/Endogenous_Ace/'
+		modification = []
+		fieldnames = []
+		mod_positions = []
+		mod_positions_str = nil
+		FasterCSV.foreach(foldername + 'joined_peps_005_cutoff.csv') do |row|
 			if fieldnames.empty?
 				fieldnames = row
 			elsif !fieldnames.empty?
@@ -45,7 +44,7 @@ namespace :db do
 						modification << $1
 					end
 					#get modification positions from string
-					mod_positions_str = row[25].split('')
+					mod_positions_str = row[25].split('.')[1].split('')
 					mod_positions.clear
 					mod_positions_str.each_index do |i|
 						if !mod_positions_str[i].include?('0') && modification.include?(peptide.split('')[i])
@@ -57,7 +56,7 @@ namespace :db do
 						modification << $1
 					end
 					# get modification positions from string
-					mod_positions_str = row[25].split('')
+					mod_positions_str = row[25].split('.')[1].split('')
 					mod_positions.clear
 					mod_positions_str.each_index do |i|
 						if !mod_positions_str[i].include?('0') && modification.include?(peptide.split('')[i])
@@ -82,43 +81,54 @@ namespace :db do
 				charge = spectrum.charge
 				rtinseconds = spectrum.rtinseconds
 				mzs = spectrum.mz
+				serialized_mzs = Marshal::dump(mzs)
 				intensities = spectrum.intensity
+				serialized_intensities = Marshal::dump(intensities)
+
+				# find all peptides by pep_seq
+				pep = Peptide.find_all_by_pep_seq(peptide)
+				# psms = Peptide.psms()
+
+				# create new Pep and get the assigned yions
+				pepl = Pep_dat.new(peptide, mzs, intensities, mod_positions)
+				assigned_yions = pepl.assigned_yions
+				serialized_assigned_yions = Marshal::dump(assigned_yions)
 
 				# feed database with psms
-				Psm.create(:accno => prot_accno,:cutoff => cutoff,:genename => "NA",:mod => modification,:pep => peptide,:pep_score => pep_score,:query => query_no,:rep => replicate,:mod_string => mod_positions,:title => title,:charge => charge,:rtinseconds => rtinseconds,:mzs => mzs,:intensities => intensities)
+				psm = Psm.create(:accno => prot_accno, :cutoff => cutoff, :genename => 'NA', :mod => modification, :peptide_id => pep.id, :pep_seq => peptide, :pep_score => pep_score, :query => query_no, :rep => replicate, :mod_positions => mod_positions, :title => title, :charge => charge, :rtinseconds => rtinseconds, :mzs => serialized_mzs, :intensities => serialized_intensities, :assigned_yions => serialized_assigned_yions)
 			end
 		end
 	end
+	
 
+	# # USAGE: rake db:load_proteins_data --trace
+	# desc "Import proteins to database using fastercsv"
+	# task :load_proteins_data  => :environment do
+	# 	pfields = []
+	# 	pcols = []
+	# 	FasterCSV.foreach("data/") do |row|
+	# 		if pfields.empty?
+	# 			pfields = row
+	# 		else pfields.empty?
+	# 			pcols = row
+	# 			Protein.create(:accno => pcols[1], :desc => pcols[2], :seq => pcols[])
+	# 		end
+	# 	end
+	# end
 
-	# USAGE: rake db:load_proteins_data --trace
-	desc "Import proteins to database using fastercsv"
-	task :load_proteins_data  => :environment do
-		pfields = []
-		pcols = []
-		FasterCSV.foreach("data/") do |row|
-			if pfields.empty?
-				pfields = row
-			else pfields.empty?
-				pcols = row
-				Protein.create(:accno => pcols[1], :desc => pcols[2], :seq => pcols[])
-			end
-		end
-	end
-
-	# USAGE: rake db:load_spectra_data --trace
-	desc "Import spectra data to database using fastercsv"
-	task :load_spectra_data  => :environment do
-		sfields = []
-		scols = []
-		FasterCSV.foreach("data/") do |row|
-			if sfields.empty?
-				sfields = row
-			else sfields.empty?
-				scols = row
-				Spectra.create(:ions1 => scols[], :query => scols[], :title => scols[])
-			end
-		end
-	end
+	# # USAGE: rake db:load_spectra_data --trace
+	# desc "Import spectra data to database using fastercsv"
+	# task :load_spectra_data  => :environment do
+	# 	sfields = []
+	# 	scols = []
+	# 	FasterCSV.foreach("data/") do |row|
+	# 		if sfields.empty?
+	# 			sfields = row
+	# 		else sfields.empty?
+	# 			scols = row
+	# 			Spectra.create(:ions1 => scols[], :query => scols[], :title => scols[])
+	# 		end
+	# 	end
+	# end
 
 end

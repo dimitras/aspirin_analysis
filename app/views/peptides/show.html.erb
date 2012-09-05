@@ -21,6 +21,10 @@
 		<td>Query</td>
 		<td>Replicate</td>
 		<td>Modification</td>
+		<td>Modified Positions</td>
+		<td>Title</td>
+		<td>Charge</td>
+		<td>RT in seconds</td>
 	</tr>
 	<% @peptide.psms.each do |psm| %>
 	<tr>
@@ -29,8 +33,22 @@
 		<td><%= psm.pep_score %></td>
 		<td><%= psm.cutoff %></td>
 		<td><%= psm.query %></td>
-		<td><%= psm.rep.split('/')[3].split('.')[0] %></td>
+		<td><%= psm.rep.split('.')[0] %></td>
 		<td><%= psm.mod %></td>
+		<td><%= psm.mod_positions %></td>
+		<td><%= psm.title %></td>
+		<td><%= psm.charge %></td>
+		<td><%= psm.rtinseconds %></td>
+	</tr>
+
+	<tr>
+		<td colspan = 11>
+			<img src="<%= psm.plot_assigned_yions %>" />
+		</td>
 	</tr>
 	<% end %>
 </table>
+<br/><br/>
+
+
+

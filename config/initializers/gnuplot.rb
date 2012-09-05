@@ -1,0 +1,1 @@
+ENV["RB_GNUPLOT"] = "/usr/local/bin/gnuplot"
