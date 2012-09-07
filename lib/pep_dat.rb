@@ -60,7 +60,7 @@ class Pep_dat
 		@bions = []
 		@yions = []
 		build_ions_tables()
-		@assigned_yions = nil
+		@assigned_yionstable = nil
 	end
 
 	def build_ions_tables()
@@ -146,7 +146,8 @@ class Pep_dat
 				assigned_ions_hash[intensities[i]] = "y(#{assigned_yions[i][0]})"
 			end
 		end
-		return assigned_ions_hash
+		assigned_ions.reject! { |c| c.empty? }
+		return assigned_ions
 	end
 
 	# get all yions (mass-intensity) and the label(index) for each assigned one

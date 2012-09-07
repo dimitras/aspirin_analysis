@@ -6,13 +6,13 @@ class Psm < ActiveRecord::Base
 	
 	attr_accessible :accno, :cutoff, :genename, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :peptide_id, :assigned_yions
 
-	belongs_to :peptide
+	belongs_to :peptide, :inverse_of => :psms#, :foreign_key => "peptide_id"
+	# @psm = @peptide.psms
+
 	has_many :proteins
 
 	def mzs_array()
-		array = Marshal::restore(mzs)
-		puts array
-		return array
+		return Marshal::restore(mzs)
 	end
 	
 	def intensities_array()
@@ -22,16 +22,14 @@ class Psm < ActiveRecord::Base
 	def assigned_yions_array()
 		return Marshal::restore(assigned_yions)
 	end
-	
-	# psm.peptide # => Peptide instance
 
 	def plot_assigned_yions()
-		filename = "public/figures/fig_#{rep}_#{query}_#{pep_seq}.png"
+		filename = "../figures/fig_#{rep}_#{query}_#{pep_seq}.svg"
 		unless File.exists? filename
 			Gnuplot.open do |gp|
 				Gnuplot::Plot.new( gp ) do |plot|
 					plot.output filename
-					plot.terminal 'png'
+					plot.terminal 'svg'
 					plot.title  "#{title} - #{pep_seq}"
 					plot.ylabel 'intensity'
 					plot.xlabel 'm/z'

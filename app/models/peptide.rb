@@ -12,7 +12,8 @@ class Peptide < ActiveRecord::Base
   # The following method does not allow you to take 
   # advantage of Rails associations. Use the following instead:
   #
-  has_many :psms
+  has_many :psms, :dependent => :destroy, :inverse_of => :peptide
+  # @peptide = @psm.peptide
   # 
   # you will need to work out how to join the tables on load via the IDs
 

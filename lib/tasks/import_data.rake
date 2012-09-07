@@ -91,7 +91,7 @@ namespace :db do
 
 				# create new Pep and get the assigned yions
 				pepl = Pep_dat.new(peptide, mzs, intensities, mod_positions)
-				assigned_yions = pepl.assigned_yions
+				assigned_yions = pepl.assigned_yionstable
 				serialized_assigned_yions = Marshal::dump(assigned_yions)
 
 				# feed database with psms
