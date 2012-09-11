@@ -150,7 +150,7 @@ class Pep_dat
 		return assigned_ions
 	end
 
-	# get all yions (mass-intensity) and the label(index) for each assigned one
+	# get all yions (mass-intensity) and the label(index) for each assigned one # NOT USED
 	def all_yionstable()
 		assigned_ions.reject! { |c| c.empty? }
 		assigned_ions_hash = assigned_yionstable()
@@ -218,7 +218,6 @@ class Pep_dat
 				# mass is too large, get next ion
 				pkmap[i1] = x
 				i2 += 1
-
 				next
 			elsif dff <  0 - tol
 				# mass is too small for the + ion
@@ -237,7 +236,6 @@ class Pep_dat
 				# mass is too small, advance
 				pkmap[i1] = x
 				i1 += 1
-				# i2 = 0
 				next
 			end
 			# set the index
@@ -245,7 +243,6 @@ class Pep_dat
 			x[1] = ions[i2][1]
 			pkmap[i1] = x
 			i1 += 1
-			# i2 = 0
 		end
 		# recheck  spectra for ++ daughter ions
 		i1 = i2 =  0

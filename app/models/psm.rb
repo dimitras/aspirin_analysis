@@ -24,7 +24,9 @@ class Psm < ActiveRecord::Base
 	end
 
 	def plot_assigned_yions()
-		filename = "../figures/fig_#{rep}_#{query}_#{pep_seq}.svg"
+		figures_folder = "public/figures/"
+		figure_filename = "fig_#{rep}_#{query}_#{pep_seq}.svg"
+		filename = figures_folder + figure_filename
 		unless File.exists? filename
 			Gnuplot.open do |gp|
 				Gnuplot::Plot.new( gp ) do |plot|
@@ -58,7 +60,7 @@ class Psm < ActiveRecord::Base
 				end
 			end
 		end
-		filename
+		return figure_filename
 		# print("mspaint  #{%x{filename}}")
 		# File.open(filename, 'rb') {|file| file.read } 
 	end
