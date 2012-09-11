@@ -137,7 +137,7 @@ class Pep_dat
 		ranked_idx.each_with_index do |i,ii|
 			if( assigned_yions[i] && !assigned_yions[i][0].nil? && 1
 				assigned_yions[i][0] > 0 )
-				assigned_ions << Array.new
+				# assigned_ions << Array.new
 				if all_labels.include? "y(#{assigned_yions[i][0]})"
 					next
 				end
@@ -146,13 +146,13 @@ class Pep_dat
 				assigned_ions_hash[intensities[i]] = "y(#{assigned_yions[i][0]})"
 			end
 		end
-		assigned_ions.reject! { |c| c.empty? }
+		# assigned_ions.reject! { |c| c.empty? }
 		return assigned_ions
 	end
 
 	# get all yions (mass-intensity) and the label(index) for each assigned one # NOT USED
 	def all_yionstable()
-		assigned_ions.reject! { |c| c.empty? }
+		# assigned_ions.reject! { |c| c.empty? }
 		assigned_ions_hash = assigned_yionstable()
 
 		for i in 0..mzs.length-1
