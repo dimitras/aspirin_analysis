@@ -13,6 +13,8 @@ class Peptide < ActiveRecord::Base
   # advantage of Rails associations. Use the following instead:
   #
   has_many :psms, :dependent => :destroy, :inverse_of => :peptide
+  has_and_belongs_to_many :proteins
+
   # @peptide = @psm.peptide
   # 
   # you will need to work out how to join the tables on load via the IDs
@@ -20,6 +22,7 @@ class Peptide < ActiveRecord::Base
   def psms()
 	  #connect to db and create psm object
 	  return Psm.find_all_by_pep_seq(pep_seq)
+	  # return Psm.find_all_by_pep_seq(pep_seq).where(:cutoff => 0..cutoff)
   end
 
 end

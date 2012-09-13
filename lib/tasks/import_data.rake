@@ -8,9 +8,10 @@ namespace :db do
 	# USAGE: rake db:load_pep_data --trace
 	desc "Import table csv data to database using fastercsv"
 	task :load_pep_data  => :environment do
+		foldername = 'data/3H_Ace/'
 		fields = []
 		cols = []
-		FasterCSV.foreach("data/peps_by_rank_product_005_cutoff.csv") do |row|
+		FasterCSV.foreach(foldername + "peps_by_rank_product_005_cutoff.csv") do |row|
 			if fields.empty?
 				fields = row
 			else !fields.empty?

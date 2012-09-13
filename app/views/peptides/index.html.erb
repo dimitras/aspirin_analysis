@@ -4,11 +4,12 @@
         <th>
           <div align="left">
             <%= form_tag(peptides_path(), :method => "get") do  %>
-                <%= label_tag(:cutoff, "Cutoff threshold:") %>
-                <% cutoffs_array = [["0.05",0.05],
-                                    ["0.5",0.5],
-                                    ["10.0",10.0]] %>
-                <%= select_tag(:cutoff, options_for_select(cutoffs_array), :onchange => 'this.form.submit();') %>
+                <%= label_tag(:cutoff, "Filter peptides by cutoff:") %>
+                <% cutoffs_array = [
+                                    ["0.05",12],
+                                    ["0.5",0.5]
+                                   ] %>
+                <%= select_tag(:cutoff, options_for_select(cutoffs_array, :selected => params[:cutoff]), :include_blank => true, :onchange => 'this.form.submit();') %>
                 <%= submit_tag('filter') %>
             <% end%>
           </div>
