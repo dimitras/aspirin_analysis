@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120905031150) do
+ActiveRecord::Schema.define(:version => 20120913181611) do
 
   create_table "pages", :force => true do |t|
     t.string   "name"
@@ -26,6 +26,8 @@ ActiveRecord::Schema.define(:version => 20120905031150) do
     t.float    "penalized_rp"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
+    t.float    "cutoff"
+    t.string   "experiment"
   end
 
   create_table "proteins", :force => true do |t|

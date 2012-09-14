@@ -5,9 +5,9 @@ namespace :db do
 	require 'pep_dat'
 	require 'mascot/dat'
 
-	# USAGE: rake db:load_pep_data --trace
+	# USAGE: rake db:load_peptides_with_cutoff005 --trace
 	desc "Import table csv data to database using fastercsv"
-	task :load_pep_data  => :environment do
+	task :load_peptides_with_cutoff005  => :environment do
 		foldername = 'data/3H_Ace/'
 		fields = []
 		cols = []
@@ -16,15 +16,55 @@ namespace :db do
 				fields = row
 			else !fields.empty?
 				cols = row
-				Peptide.create(:pep_seq => cols[4],:rank_product => cols[18],:penalized_rp => cols[19])
+				Peptide.create(:pep_seq => cols[4],:rank_product => cols[18],:penalized_rp => cols[19], :cutoff => 0.05, :experiment => '3h-Acetylation')
+			end
+		end
+	end
+
+	# USAGE: rake db:load_cutoff_classifier_005 --trace
+	desc "Fill the cutoff column with cutoff classifier = 0.05 for all peptides of :load_pep_data"
+	task :load_cutoff_classifier_005  => :environment do
+		Peptide.update_all :cutoff => 0.05
+	end
+
+
+	# USAGE: rake db:load_peptides_with_cutoff05 --trace
+	desc "Import table csv data to database using fastercsv and feed with cutoff classifier = 0.5"
+	task :load_peptides_with_cutoff05  => :environment do
+		foldername = 'data/3H_Ace/'
+		fields = []
+		cols = []
+		FasterCSV.foreach(foldername + "peps_by_rank_product_05_cutoff.csv") do |row|
+			if fields.empty?
+				fields = row
+			else !fields.empty?
+				cols = row
+				Peptide.create(:pep_seq => cols[4], :rank_product => cols[18], :penalized_rp => cols[19], :cutoff => 0.5, :experiment => '3h-Acetylation')
 			end
 		end
 	end
 
 
-	# USAGE: rake db:load_psms_data --trace
-	desc "Import hits csv to database using fastercsv"
-	task :load_psms_data  => :environment do
+	# USAGE: rake db:load_peptides_with_cutoff10 --trace
+	desc "Import table csv data to database using fastercsv and feed with cutoff classifier = 10.0"
+	task :load_peptides_with_cutoff10  => :environment do
+		foldername = 'data/3H_Ace/'
+		fields = []
+		cols = []
+		FasterCSV.foreach(foldername + "peps_by_rank_product_no_cutoff.csv") do |row|
+			if fields.empty?
+				fields = row
+			else !fields.empty?
+				cols = row
+				Peptide.create(:pep_seq => cols[4], :rank_product => cols[18], :penalized_rp => cols[19], :cutoff => 10.0, :experiment => '3h-Acetylation')
+			end
+		end
+	end
+
+
+	# USAGE: rake db:load_all_hits --trace
+	desc "Import all hits csv to database using fastercsv"
+	task :load_all_hits  => :environment do
 		# REMEMBER TO uncomment the correct dataset (foldername)
 		foldername = 'data/3H_Ace/'
 		# foldername = 'data/Endogenous_Ace/'
@@ -32,7 +72,7 @@ namespace :db do
 		fieldnames = []
 		mod_positions = []
 		mod_positions_str = nil
-		FasterCSV.foreach(foldername + 'joined_peps_005_cutoff.csv') do |row|
+		FasterCSV.foreach(foldername + 'joined_peps_no_cutoff.csv') do |row|
 			if fieldnames.empty?
 				fieldnames = row
 			elsif !fieldnames.empty?

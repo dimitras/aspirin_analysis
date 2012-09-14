@@ -8,11 +8,11 @@ class PeptidesController < ApplicationController
     
     if !params[:cutoff] || params[:cutoff] == ''
       params[:cutoff] = nil
-      @peptides = Peptide.paginate(:page => params[:page])
-      #@peptides = Peptide.where(:rank_product => 10).paginate(:page => params[:page])
+#       @peptides = Peptide.paginate(:page => params[:page])
+	@peptides = Peptide.where(:cutoff => 10.0, :experiment => params[:experiment]).paginate(:page => params[:page])
     else
-      @peptides = Peptide.where(:rank_product => 0..(params[:cutoff].to_f)).paginate(:page => params[:page])
-      #@peptides = Peptide.where(:rank_product => :cutoff).paginate(:page => params[:page])
+#       @peptides = Peptide.where(:rank_product => params[:cutoff].to_f).paginate(:page => params[:page])
+	@peptides = Peptide.where(:cutoff => params[:cutoff].to_f, :experiment => params[:experiment]).paginate(:page => params[:page])
     end
 
     respond_to do |format|

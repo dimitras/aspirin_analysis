@@ -4,7 +4,7 @@ class Peptide < ActiveRecord::Base
   # pagination default
   self.per_page = 50
   # accessible attributes for mass assignment
-  attr_accessible :penalized_rp, :pep_seq, :rank_product
+  attr_accessible :penalized_rp, :pep_seq, :rank_product, :cutoff, :experiment
 
   # default ordering for the model
   default_scope order("penalized_rp ASC")
@@ -20,9 +20,8 @@ class Peptide < ActiveRecord::Base
   # you will need to work out how to join the tables on load via the IDs
 
   def psms()
-	  #connect to db and create psm object
-	  return Psm.find_all_by_pep_seq(pep_seq)
-	  # return Psm.find_all_by_pep_seq(pep_seq).where(:cutoff => 0..cutoff)
+	  # return Psm.find_all_by_pep_seq(pep_seq)
+    return Psm.where(:cutoff => 0..cutoff).find_all_by_pep_seq(pep_seq)
   end
 
 end
