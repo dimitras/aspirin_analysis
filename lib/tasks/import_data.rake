@@ -5,6 +5,125 @@ namespace :db do
 	require 'pep_dat'
 	require 'mascot/dat'
 
+	# ENDOGENOUS RESULTS-SETS #
+
+	# USAGE: rake db:load_peptides_with_cutoff005_for_endogenous --trace
+	desc "Import table csv data to database using fastercsv and feed with cutoff classifier = 0.05"
+	task :load_peptides_with_cutoff005_for_endogenous  => :environment do
+		foldername = 'data/En_ACE/'
+		fields = []
+		cols = []
+		FasterCSV.foreach(foldername + "peps_by_rank_product_005_cutoff.csv") do |row|
+			if fields.empty?
+				fields = row
+			else !fields.empty?
+				cols = row
+				Peptide.create(:pep_seq => cols[4],:rank_product => cols[18],:penalized_rp => cols[19], :cutoff => 0.05, :experiment => 'Endogenous-Acetylation')
+			end
+		end
+	end
+
+	# USAGE: rake db:load_peptides_with_cutoff05_for_endogenous --trace
+	desc "Import table csv data to database using fastercsv and feed with cutoff classifier = 0.5"
+	task :load_peptides_with_cutoff05_for_endogenous  => :environment do
+		foldername = 'data/En_ACE/'
+		fields = []
+		cols = []
+		FasterCSV.foreach(foldername + "peps_by_rank_product_05_cutoff.csv") do |row|
+			if fields.empty?
+				fields = row
+			else !fields.empty?
+				cols = row
+				Peptide.create(:pep_seq => cols[4], :rank_product => cols[18], :penalized_rp => cols[19], :cutoff => 0.5, :experiment => 'Endogenous-Acetylation')
+			end
+		end
+	end
+
+
+	# USAGE: rake db:load_peptides_with_cutoff10_for_endogenous --trace
+	desc "Import table csv data to database using fastercsv and feed with cutoff classifier = 10.0"
+	task :load_peptides_with_cutoff10_for_endogenous  => :environment do
+		foldername = 'data/En_ACE/'
+		fields = []
+		cols = []
+		FasterCSV.foreach(foldername + "peps_by_rank_product_no_cutoff.csv") do |row|
+			if fields.empty?
+				fields = row
+			else !fields.empty?
+				cols = row
+				Peptide.create(:pep_seq => cols[4], :rank_product => cols[18], :penalized_rp => cols[19], :cutoff => 10.0, :experiment => 'Endogenous-Acetylation')
+			end
+		end
+	end
+
+
+	# USAGE: rake db:load_all_hits_for_endogenous --trace
+	desc "Import all hits csv to database using fastercsv"
+	task :load_all_hits_for_endogenous  => :environment do
+		foldername = 'data/En_ACE/'
+		modification = []
+		fieldnames = []
+		mod_positions = []
+		mod_positions_str = nil
+		FasterCSV.foreach(foldername + 'joined_peps_no_cutoff.csv') do |row|
+			if fieldnames.empty?
+				fieldnames = row
+			elsif !fieldnames.empty?
+				peptide = row[22].to_s
+				prot_accno = row[1].to_s
+				prot_desc = row[2].to_s
+				modification.clear
+				
+				row[24].scan(/Acetyl\s\((\w)\)/).each do |i| # Acetyl (K)
+					modification << $1
+				end
+				# get modification positions from string
+				mod_positions_str = row[25].split('.')[1].split('')
+				mod_positions.clear
+				mod_positions_str.each_index do |i|
+					if !mod_positions_str[i].include?('0') && modification.include?(peptide.split('')[i])
+						mod_positions << i + 1 #1-based
+					end
+				end
+			
+				query_no = row[9].to_i
+				parent_mass = row[14].to_f
+				calc_mass = row[16].to_f
+				delta = row[17].to_f
+				cutoff = row[20].to_f
+				pep_score = row[19].to_f
+				replicate = row[27].split('/')[3].split('_')[1]
+
+				# take the ions table from dat file
+				filename = foldername + 'dats/' + replicate +  '.dat'
+				dat = Mascot::DAT.open(filename, true)
+				spectrum = dat.query(query_no)
+				title = spectrum.title
+				charge = spectrum.charge
+				rtinseconds = spectrum.rtinseconds
+				mzs = spectrum.mz
+				serialized_mzs = Marshal::dump(mzs)
+				intensities = spectrum.intensity
+				serialized_intensities = Marshal::dump(intensities)
+
+				# find all peptides by pep_seq
+				pep = Peptide.find_all_by_pep_seq(peptide)
+				# psms = Peptide.psms()
+
+				# create new Pep and get the assigned yions
+				pepl = Pep_dat.new(peptide, mzs, intensities, mod_positions)
+				assigned_yions = pepl.assigned_yionstable
+				serialized_assigned_yions = Marshal::dump(assigned_yions)
+
+				# feed database with psms
+				psm = Psm.create(:accno => prot_accno, :cutoff => cutoff, :genename => 'NA', :mod => modification, :peptide_id => pep.id, :pep_seq => peptide, :pep_score => pep_score, :query => query_no, :rep => replicate, :mod_positions => mod_positions, :title => title, :charge => charge, :rtinseconds => rtinseconds, :mzs => serialized_mzs, :intensities => serialized_intensities, :assigned_yions => serialized_assigned_yions)
+			end
+		end
+	end
+
+
+	# 3H-ACETYLATION #
+
 	# USAGE: rake db:load_peptides_with_cutoff005 --trace
 	desc "Import table csv data to database using fastercsv"
 	task :load_peptides_with_cutoff005  => :environment do
