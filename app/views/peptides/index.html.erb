@@ -1,4 +1,10 @@
 <br/>
+<p>
+	Welcome to our aspirin analysis database.
+	<br/>
+	To view the list of the peptides you have to choose the experiment and the cutoff filter for the peptide expectancy.
+	You may click on each peptide to view further information.
+</p>
 <table>
     <tr>
         <th>
@@ -6,44 +12,49 @@
             <%= form_tag(peptides_path(), :method => "get") do  %>
                 <%= label_tag(:experiment, "Choose experiment:") %>
                 <% experiments_array = [
-                                    ["3H-Acetylation (default)",'3h-Acetylation'],
-                                    ["Endogenous Acetylation",'Endogenous-Acetylation']
+                                    ["3H-Acetylation",'3h-Acetylation'],
+                                    ["Endogenous-Acetylation",'Endogenous-Acetylation']
                                    ] %>
-                <%= select_tag(:experiment, options_for_select(experiments_array, :selected => params[:experiment]), :onchange => 'this.form.submit();') %>
+                <%= select_tag(:experiment, options_for_select(experiments_array, :selected => params[:experiment]), :include_blank => true, :onchange => 'this.form.submit();') %>
 
                 <%= label_tag(:cutoff, "Filter peptides by cutoff:") %>
                 <% cutoffs_array = [
+				    ["none",10.0],
                                     ["0.05",0.05],
                                     ["0.5",0.5]
                                    ] %>
-                <%= select_tag(:cutoff, options_for_select(cutoffs_array, :selected => params[:cutoff]), :include_blank => true, :onchange => 'this.form.submit();') %>
+                <%= select_tag(:cutoff, options_for_select(cutoffs_array, :selected => params[:cutoff]), :onchange => 'this.form.submit();') %>
             <% end%>
           </div>
         </th>
     </tr>
-
-
-    <!-- <%= params[:experiment] %> -->
     <tr>
         <th colspan=3><br/></th>
     </tr>
+</table>
+    
+<table>
+    <% if params[:experiment] %>
+    
+	<tr>
+		<th>Peptide</th>
+		<th>Rank Product</th>
+		<th>Penalized Rank Product</th>
+	</tr>
 
-    <tr>
-        <th>Peptide</th>
-        <th>Rank Product</th>
-        <th>Penalized Rank Product</th>
-    </tr>
+	<!-- :order => cutoff -->
+	<% @peptides.each do |peptide| %>
 
-    <!-- :order => cutoff -->
-    <% @peptides.each do |peptide| %>
-       
-        <tr>
-            <td><%= link_to(peptide.pep_seq, peptide_path(peptide)) %></td>
-            <td><%= peptide.rank_product %></td>
-            <td><%= peptide.penalized_rp %></td>
-        </tr>
-       
+		<tr>
+		<td><%= link_to(peptide.pep_seq, peptide_path(peptide)) %></td>
+		<td><%= peptide.rank_product %></td>
+		<td><%= peptide.penalized_rp %></td>
+		</tr>
+
+	<% end %>
+
     <% end %>
+    
 </table>
 
 <div class="digg_pagination">

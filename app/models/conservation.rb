@@ -1,20 +1,19 @@
 # == Schema Information
 #
-# Table name: proteins
+# Table name: conservations
 #
 #  id         :integer          not null, primary key
 #  accno      :string(255)
 #  desc       :string(255)
+#  species    :string(255)
 #  seq        :string(255)
+#  protein_id :integer
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
 
-class Protein < ActiveRecord::Base
-  attr_accessible :accno, :desc, :seq
+class Conservation < ActiveRecord::Base
+  attr_accessible :accno, :chrom, :genomic_start, :genomic_stop, :seq, :size, :species, :strand
 
-  has_and_belongs_to_many :peptides
-  has_and_belongs_to_many :psms
-  has_many :conservations
-
+  belong_to :protein
 end

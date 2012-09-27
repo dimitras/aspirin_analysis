@@ -10,12 +10,31 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120913181611) do
+ActiveRecord::Schema.define(:version => 20120927035520) do
+
+  create_table "conservations", :force => true do |t|
+    t.string   "accno"
+    t.string   "desc"
+    t.string   "species"
+    t.string   "seq"
+    t.integer  "protein_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "conservations", ["accno"], :name => "index_conservations_on_accno"
 
   create_table "pages", :force => true do |t|
     t.string   "name"
     t.string   "title"
     t.text     "body"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "peptidepsms", :force => true do |t|
+    t.integer  "peptide_id"
+    t.integer  "psm_id"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
@@ -28,6 +47,13 @@ ActiveRecord::Schema.define(:version => 20120913181611) do
     t.datetime "updated_at",   :null => false
     t.float    "cutoff"
     t.string   "experiment"
+  end
+
+  add_index "peptides", ["pep_seq"], :name => "index_peptides_on_pep_seq"
+
+  create_table "peptides_proteins", :id => false, :force => true do |t|
+    t.integer "peptide_id"
+    t.integer "protein_id"
   end
 
   create_table "proteins", :force => true do |t|
@@ -55,11 +81,15 @@ ActiveRecord::Schema.define(:version => 20120913181611) do
     t.string   "rtinseconds"
     t.binary   "mzs"
     t.binary   "intensities"
-    t.integer  "peptide_id"
     t.binary   "assigned_yions"
   end
 
-  add_index "psms", ["peptide_id"], :name => "index_psms_on_peptide_id"
+  add_index "psms", ["pep_seq"], :name => "index_psms_on_pep_seq"
+
+  create_table "psms_proteins", :id => false, :force => true do |t|
+    t.integer "psm_id"
+    t.integer "protein_id"
+  end
 
   create_table "spectras", :force => true do |t|
     t.string   "query"

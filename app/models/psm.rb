@@ -1,15 +1,39 @@
+# == Schema Information
+#
+# Table name: psms
+#
+#  id             :integer          not null, primary key
+#  pep_seq        :string(255)
+#  query          :string(255)
+#  accno          :string(255)
+#  pep_score      :float
+#  rep            :string(255)
+#  mod            :string(255)
+#  genename       :string(255)
+#  cutoff         :float
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  mod_positions  :string(255)
+#  title          :string(255)
+#  charge         :string(255)
+#  rtinseconds    :string(255)
+#  mzs            :binary
+#  intensities    :binary
+#  assigned_yions :binary
+#
+
 require 'rubygems'
 require 'gnuplot'
 # require 'hpricot'
 
 class Psm < ActiveRecord::Base
 	
-	attr_accessible :accno, :cutoff, :genename, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :peptide_id, :assigned_yions
+	attr_accessible :accno, :cutoff, :genename, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :assigned_yions
 
-	belongs_to :peptide, :inverse_of => :psms#, :foreign_key => "peptide_id"
-	# @psm = @peptide.psms
-
-	has_many :proteins
+	has_many :peptidepsms
+  	has_many :peptides, :through => :peptidepsms
+	# has_and_belongs_to_many :peptides#, :foreign_key => "pep_seq"#peptide_id"
+	has_and_belongs_to_many :proteins
 
 	def mzs_array()
 		return Marshal::restore(mzs)

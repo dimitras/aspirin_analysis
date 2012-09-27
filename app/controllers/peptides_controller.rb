@@ -8,11 +8,11 @@ class PeptidesController < ApplicationController
     
     if !params[:cutoff] || params[:cutoff] == ''
       params[:cutoff] = nil
-#       @peptides = Peptide.paginate(:page => params[:page])
-	@peptides = Peptide.where(:cutoff => 10.0, :experiment => params[:experiment]).paginate(:page => params[:page])
+#     @peptides = Peptide.paginate(:page => params[:page])
+      @peptides = Peptide.where(:cutoff => 10.0, :experiment => params[:experiment]).paginate(:page => params[:page])
     else
-#       @peptides = Peptide.where(:rank_product => params[:cutoff].to_f).paginate(:page => params[:page])
-	@peptides = Peptide.where(:cutoff => params[:cutoff].to_f, :experiment => params[:experiment]).paginate(:page => params[:page])
+#     @peptides = Peptide.where(:rank_product => params[:cutoff].to_f).paginate(:page => params[:page])
+      @peptides = Peptide.where(:cutoff => params[:cutoff].to_f, :experiment => params[:experiment]).paginate(:page => params[:page])
     end
 
     respond_to do |format|
@@ -25,6 +25,7 @@ class PeptidesController < ApplicationController
   # GET /peptides/1.json
   def show
     @peptide = Peptide.find(params[:id])
+#     @peptide = Peptide.find(params[:id]).joins(:psms).where('psms.cutoff <= ?', 0.05)#0..params[:cutoff])#
     logger.info( "PEPTIDE: (#{params[:id]}) #{@peptide.pep_seq}")
 
     respond_to do |format|

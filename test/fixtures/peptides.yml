@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: peptides
+#
+#  id           :integer          not null, primary key
+#  pep_seq      :string(255)
+#  rank_product :float
+#  penalized_rp :float
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  cutoff       :float
+#  experiment   :string(255)
+#
+
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
