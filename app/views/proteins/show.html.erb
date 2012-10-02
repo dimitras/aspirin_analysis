@@ -1,6 +1,19 @@
 <p id="notice"><%= notice %></p>
 
 <p>
+  <b>Peptide:</b>
+  <%= pep = params[:annotate_psm] %>
+</p>
+
+<p>
+  <b>Peptide modification:</b>
+  <%= mod = params[:annotate_mod] %> 
+  ( <%= mod_positions = params[:annotate_mod_positions] %> )
+</p>
+
+<br/> 
+
+<p>
   <b>Protein accession number:</b>
   <%= @protein.accno %>
 </p>
@@ -16,9 +29,9 @@
 </p>
 
 <p>
-	<b>Sequence:</b></br>
+	<b>Sequence: (<%= @protein.seq.length %>)</b></br>
 	<font face="courier" size=3>
-		<% seq_to_fasta_array(@protein.seq).each do |seq| %>
+		<% seq_to_fasta_array(@protein.seq, pep).each do |seq| %>
 			<%= seq %></br>
 		<% end %>
 	</font>

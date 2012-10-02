@@ -29,7 +29,7 @@
 	</tr>
 	<tr>
 		<td><%= psm.query %></td>
-		<td><%= link_to psm.protein.accno, protein_path(psm.protein) %></td>
+		<td><%= link_to psm.protein.accno, protein_path(psm.protein, :annotate_psm => psm.pep_seq, :annotate_mod => psm.mod, :annotate_mod_positions => psm.mod_positions) %></td>
 		<td><%= psm.genename %></td>
 		<td><%= psm.pep_score %></td>
 		<td><%= psm.cutoff %></td>
