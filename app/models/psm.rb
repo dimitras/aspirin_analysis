@@ -24,7 +24,6 @@
 
 require 'rubygems'
 require 'gnuplot'
-# require 'hpricot'
 
 class Psm < ActiveRecord::Base
 	
@@ -32,7 +31,6 @@ class Psm < ActiveRecord::Base
 
 	has_many :peptidepsms
   	has_many :peptides, :through => :peptidepsms
-	# has_and_belongs_to_many :peptides#, :foreign_key => "pep_seq"#peptide_id"
 	belongs_to :protein, :primary_key => "accno", :foreign_key => "accno"
 
 	def mzs_array()
@@ -85,7 +83,5 @@ class Psm < ActiveRecord::Base
 			end
 		end
 		return figure_filename
-		# print("mspaint  #{%x{filename}}")
-		# File.open(filename, 'rb') {|file| file.read } 
 	end
 end

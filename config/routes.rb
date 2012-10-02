@@ -3,8 +3,6 @@ AspirinAnalysis::Application.routes.draw do
 
   resources :peptides, :only => [:index,:show]
 
-  # resources :proteins, :only => [:index,:show]
-
   resources :proteins do
     resources :psms
   end

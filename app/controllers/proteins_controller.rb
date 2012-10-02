@@ -14,7 +14,6 @@ class ProteinsController < ApplicationController
   # GET /proteins/1.json
   def show
     @protein = Protein.find(params[:id])
-#     seq = view_context.seq_wrapper(@protein.seq, 50)
 
     respond_to do |format|
       format.html # show.html.erb

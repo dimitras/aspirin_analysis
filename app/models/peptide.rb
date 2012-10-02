@@ -12,8 +12,6 @@
 #  experiment   :string(255)
 #
 
-require 'psm'
-
 class Peptide < ActiveRecord::Base
   # pagination default
   self.per_page = 50
@@ -25,7 +23,6 @@ class Peptide < ActiveRecord::Base
 
   has_many :peptidepsms
   has_many :psms, :through => :peptidepsms
-  # has_and_belongs_to_many :psms#, :foreign_key => "pep_seq", :primary_key => "pep_seq"
   
 # scope :fdr, lambda{|c|  joins(:psms).where("psms.cutoff" <= c)}
 # scope :filtered_psms, joins(:psms).where("psms.cutoff <= ?" ,  0.05)
