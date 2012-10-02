@@ -10,19 +10,18 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120927035520) do
+ActiveRecord::Schema.define(:version => 20120928211046) do
 
   create_table "conservations", :force => true do |t|
-    t.string   "accno"
-    t.string   "desc"
+    t.string   "primary_species_accno"
+    t.string   "mrna_id"
     t.string   "species"
-    t.string   "seq"
-    t.integer  "protein_id"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.text     "seq"
+    t.datetime "created_at",            :null => false
+    t.datetime "updated_at",            :null => false
   end
 
-  add_index "conservations", ["accno"], :name => "index_conservations_on_accno"
+  add_index "conservations", ["primary_species_accno"], :name => "index_conservations_on_primary_species_accno"
 
   create_table "pages", :force => true do |t|
     t.string   "name"
@@ -51,18 +50,24 @@ ActiveRecord::Schema.define(:version => 20120927035520) do
 
   add_index "peptides", ["pep_seq"], :name => "index_peptides_on_pep_seq"
 
-  create_table "peptides_proteins", :id => false, :force => true do |t|
-    t.integer "peptide_id"
-    t.integer "protein_id"
+  create_table "proteinpsms", :force => true do |t|
+    t.integer  "protein_id"
+    t.integer  "psm_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "proteins", :force => true do |t|
     t.string   "accno"
     t.string   "desc"
-    t.string   "seq"
+    t.string   "species"
+    t.text     "seq"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  add_index "proteins", ["accno"], :name => "index_proteins_on_accno"
+  add_index "proteins", ["species"], :name => "index_proteins_on_species"
 
   create_table "psms", :force => true do |t|
     t.string   "pep_seq"
@@ -85,11 +90,6 @@ ActiveRecord::Schema.define(:version => 20120927035520) do
   end
 
   add_index "psms", ["pep_seq"], :name => "index_psms_on_pep_seq"
-
-  create_table "psms_proteins", :id => false, :force => true do |t|
-    t.integer "psm_id"
-    t.integer "protein_id"
-  end
 
   create_table "spectras", :force => true do |t|
     t.string   "query"

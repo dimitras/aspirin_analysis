@@ -1,0 +1,24 @@
+<h1>Listing proteins</h1>
+
+<table>
+  <tr>
+    <th>Accno</th>
+    <th>Desc</th>
+    <th>Species</th>
+    <th>Seq</th>
+    <th></th>
+  </tr>
+
+<% @proteins.each do |protein| %>
+  <tr>
+    <td><%= protein.accno %></td>
+    <td><%= protein.desc %></td>
+    <td><%= protein.species %></td>
+    <td><%= protein.seq %></td>
+    <td><%= link_to 'Show', protein %></td>
+    
+  </tr>
+<% end %>
+</table>
+
+

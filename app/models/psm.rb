@@ -33,7 +33,7 @@ class Psm < ActiveRecord::Base
 	has_many :peptidepsms
   	has_many :peptides, :through => :peptidepsms
 	# has_and_belongs_to_many :peptides#, :foreign_key => "pep_seq"#peptide_id"
-	has_and_belongs_to_many :proteins
+	belongs_to :protein, :primary_key => "accno", :foreign_key => "accno"
 
 	def mzs_array()
 		return Marshal::restore(mzs)

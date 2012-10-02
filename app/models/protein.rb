@@ -11,10 +11,28 @@
 #
 
 class Protein < ActiveRecord::Base
-  attr_accessible :accno, :desc, :seq
+  attr_accessible :accno, :desc, :seq, :species
 
-  has_and_belongs_to_many :peptides
-  has_and_belongs_to_many :psms
-  has_many :conservations
+  has_many :psms, :foreign_key => "accno", :primary_key => "accno"
 
+
+	# def seq_to_fasta_array()
+	# 	wrapped = []
+	# 	index = 0
+	# 	(0..self.seq.length-1).each do |i|
+	# 		if wrapped[index].nil?
+	# 			wrapped[index] = ''
+	# 		end
+
+	# 		wrapped[index] = wrapped[index] + self.seq[i..i]
+	# 		if ((i+1) % 60 == 0)
+	# 			index += 1
+	# 		end
+	# 	end
+	# 	return wrapped
+	# end
+	
 end
+
+
+

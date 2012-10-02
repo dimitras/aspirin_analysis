@@ -15,9 +15,11 @@
 one:
   accno: MyString
   desc: MyString
-  seq: MyString
+  species: MyString
+  seq: MyText
 
 two:
   accno: MyString
   desc: MyString
-  seq: MyString
+  species: MyString
+  seq: MyText

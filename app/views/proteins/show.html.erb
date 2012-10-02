@@ -1,0 +1,26 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Protein accession number:</b>
+  <%= @protein.accno %>
+</p>
+
+<p>
+  <b>Protein description:</b>
+  <%= @protein.desc %> <!-- .split('HUMAN ')[1] -->
+</p>
+
+<p>
+  <b>Species:</b>
+  <%= @protein.species %>
+</p>
+
+<p>
+	<b>Sequence:</b></br>
+	<font face="courier" size=3>
+		<% seq_to_fasta_array(@protein.seq).each do |seq| %>
+			<%= seq %></br>
+		<% end %>
+	</font>
+</p>
+

@@ -216,7 +216,7 @@ namespace :db do
 		proteome_db_fap = FastaParser.open(proteome_db_fasta_file)
 		
 		proteome_db_fap.each do |fasta_entry|
-			protein = Protein.create(:accno => fasta_entry.accno, :desc => fasta_entry.desc, :seq => fasta_entry.seq)
+			protein = Protein.create(:accno => fasta_entry.accno, :desc => fasta_entry.desc, :seq => fasta_entry.seq, :species => 'hg19')
 		end
 	end
 

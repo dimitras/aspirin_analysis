@@ -1,0 +1,33 @@
+<%= form_for(@protein) do |f| %>
+  <% if @protein.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@protein.errors.count, "error") %> prohibited this protein from being saved:</h2>
+
+      <ul>
+      <% @protein.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :accno %><br />
+    <%= f.text_field :accno %>
+  </div>
+  <div class="field">
+    <%= f.label :desc %><br />
+    <%= f.text_field :desc %>
+  </div>
+  <div class="field">
+    <%= f.label :species %><br />
+    <%= f.text_field :species %>
+  </div>
+  <div class="field">
+    <%= f.label :seq %><br />
+    <%= f.text_area :seq %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
