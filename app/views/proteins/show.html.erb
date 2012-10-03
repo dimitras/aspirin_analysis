@@ -2,13 +2,12 @@
 
 <p>
   <b>Peptide:</b>
-  <%= pep = params[:annotate_psm] %>
+  <%= @psm.pep_seq %>
 </p>
 
 <p>
   <b>Peptide modification:</b>
-  <%= mod = params[:annotate_mod] %> 
-  ( <%= mod_positions = params[:annotate_mod_positions] %> )
+  <%= @psm.mod %>
 </p>
 
 <br/> 
@@ -28,12 +27,12 @@
   <%= @protein.species %>
 </p>
 
+
 <p>
-	<b>Sequence: (<%= @protein.seq.length %>)</b></br>
-	<font face="courier" size=3>
-		<% seq_to_fasta_array(@protein.seq, pep).each do |seq| %>
-			<%= seq %></br>
-		<% end %>
-	</font>
+	<b>Sequence:</b></br>
+	<div id = 'protein_seq_wrapper'>
+		<%= highlight_seq(@protein.seq, @psm.pep_seq, @psm.mod_positions) %></br>
+	</div>
 </p>
+
 

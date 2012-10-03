@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120928211046) do
+ActiveRecord::Schema.define(:version => 20121003031900) do
 
   create_table "conservations", :force => true do |t|
     t.string   "primary_species_accno"
@@ -64,6 +64,7 @@ ActiveRecord::Schema.define(:version => 20120928211046) do
     t.text     "seq"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.string   "genename"
   end
 
   add_index "proteins", ["accno"], :name => "index_proteins_on_accno"
@@ -76,7 +77,6 @@ ActiveRecord::Schema.define(:version => 20120928211046) do
     t.float    "pep_score"
     t.string   "rep"
     t.string   "mod"
-    t.string   "genename"
     t.float    "cutoff"
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false

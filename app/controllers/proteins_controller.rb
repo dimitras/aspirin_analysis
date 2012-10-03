@@ -14,6 +14,7 @@ class ProteinsController < ApplicationController
   # GET /proteins/1.json
   def show
     @protein = Protein.find(params[:id])
+    @psm = Psm.find(params[:psm_id])
 
     respond_to do |format|
       format.html # show.html.erb

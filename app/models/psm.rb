@@ -27,7 +27,7 @@ require 'gnuplot'
 
 class Psm < ActiveRecord::Base
 	
-	attr_accessible :accno, :cutoff, :genename, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :assigned_yions
+	attr_accessible :accno, :cutoff, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :assigned_yions
 
 	has_many :peptidepsms
   	has_many :peptides, :through => :peptidepsms

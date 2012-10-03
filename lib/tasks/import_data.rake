@@ -184,7 +184,7 @@ namespace :db do
 					serialized_assigned_yions = Marshal::dump(assigned_yions)
 
 					# feed database with psms
-					psm = Psm.create(:accno => prot_accno, :cutoff => cutoff, :genename => 'NA', :mod => modification, :pep_seq => peptide, :pep_score => pep_score, :query => query_no, :rep => replicate, :mod_positions => mod_positions, :title => title, :charge => charge, :rtinseconds => rtinseconds, :mzs => serialized_mzs, :intensities => serialized_intensities, :assigned_yions => serialized_assigned_yions)
+					psm = Psm.create(:accno => prot_accno, :cutoff => cutoff, :mod => modification.join(','), :pep_seq => peptide, :pep_score => pep_score, :query => query_no, :rep => replicate, :mod_positions => mod_positions.join(','), :title => title, :charge => charge, :rtinseconds => rtinseconds, :mzs => serialized_mzs, :intensities => serialized_intensities, :assigned_yions => serialized_assigned_yions)
 
 					# find all peptides
 					peps = Peptide.where("cutoff >= ? AND pep_seq = ? AND experiment = ?" ,  psm.cutoff, peptide, experiment)
@@ -216,12 +216,14 @@ namespace :db do
 		proteome_db_fap = FastaParser.open(proteome_db_fasta_file)
 		
 		proteome_db_fap.each do |fasta_entry|
-			protein = Protein.create(:accno => fasta_entry.accno, :desc => fasta_entry.desc, :seq => fasta_entry.seq, :species => 'hg19')
+			if fasta_entry.desc.include? 'GN='
+				genename = fasta_entry.desc.split('GN=')[1].split(' ')[0]
+			else
+				genename = 'NA'
+			end
+			protein = Protein.create(:accno => fasta_entry.accno, :desc => fasta_entry.desc, :seq => fasta_entry.seq, :species => 'hg19', :genename => genename)
 		end
 	end
-
-# pou na valo ta find_peps_in_protein k find_mods_in_peps?
-# pos na ftiakso ta find_peps_in_protein k find_mods_in_peps?
 
 
 	# # USAGE: rake db:load_conservation_data --trace

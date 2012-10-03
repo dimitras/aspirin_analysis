@@ -1,3 +1,20 @@
 // Place all the styles related to the Proteins controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+
+#highlight_peptide {
+	color:red;
+}
+
+#highlight_modification {
+	font-weight:bold;
+	color:red;
+}
+
+#protein_seq_wrapper {
+	width:600px;
+	word-wrap:break-word;
+	font-family: Courier;
+	font-size: 12pt;
+}

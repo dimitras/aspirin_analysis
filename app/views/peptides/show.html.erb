@@ -17,7 +17,7 @@
 <br/><br/>
 <table>
 	<% @peptide.psms.each do |psm| %>
-	<tr style="font-weight:bold">
+	<tr id='bold_headers'>
 		<td>Query</td>
 		<td>Accession No</td>
 		<td>Genename</td>
@@ -29,8 +29,8 @@
 	</tr>
 	<tr>
 		<td><%= psm.query %></td>
-		<td><%= link_to psm.protein.accno, protein_path(psm.protein, :annotate_psm => psm.pep_seq, :annotate_mod => psm.mod, :annotate_mod_positions => psm.mod_positions) %></td>
-		<td><%= psm.genename %></td>
+		<td><%= link_to psm.protein.accno, protein_path(psm.protein, :psm_id => psm.id) %></td>
+		<td><%= psm.protein.genename %></td>
 		<td><%= psm.pep_score %></td>
 		<td><%= psm.cutoff %></td>
 		<td><%= psm.rep.split('.')[0] %></td>
@@ -42,7 +42,7 @@
 		<td colspan = 11 height = 20></td>
 	</tr>
 
-	<tr style="font-weight:bold">
+	<tr id='bold_headers'>
 		<td colspan = 6>Spectra</td>
 		<td colspan = 5>Assigned y-ions table</td>
 	</tr>
@@ -53,7 +53,7 @@
 		</td>
 		<td colspan=5 valign='top'>
 			<table>
-				<tr style="font-weight:bold">
+				<tr id='bold_headers'>
 					<td>m/z</td>
 					<td>intensity</td>
 					<td>index</td>

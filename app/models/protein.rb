@@ -11,7 +11,7 @@
 #
 
 class Protein < ActiveRecord::Base
-  attr_accessible :accno, :desc, :seq, :species
+  attr_accessible :accno, :desc, :seq, :species, :genename
 
   has_many :psms, :foreign_key => "accno", :primary_key => "accno"
 	
