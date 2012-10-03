@@ -7,7 +7,7 @@
 
 <p>
   <b>Peptide modification:</b>
-  <%= @psm.mod %>
+  <%= @psm.mod %> (<%= @psm.mod_positions %>)
 </p>
 
 <br/> 
@@ -27,6 +27,10 @@
   <%= @protein.species %>
 </p>
 
+<p>
+  <b>Genename:</b>
+  <%= @protein.genename %>
+</p>
 
 <p>
 	<b>Sequence:</b></br>
