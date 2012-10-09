@@ -35,8 +35,27 @@
 <p>
 	<b>Sequence:</b></br>
 	<div id = 'protein_seq_wrapper'>
-		<%= highlight_seq(@protein.seq, @psm.pep_seq, @psm.mod_positions) %></br>
+		<%= highlight_seq(@protein.seq, @psm.pep_seq, @psm.mod_positions_array) %></br>
 	</div>
 </p>
-
+<br/><br/>
+<hr>
+<br/>
+<h3>Multiple alignment for conservation of the <%= @psm.mod %>(<%= @psm.mod_positions %>) modification:</h3>
+<br/><br/>
+<table>
+	<% @psm.conservations.each do |conservation| %>
+	<% if conservation.species != 'hg19' %>
+	<tr>
+		<td>
+			<div id='bold_headers'><%= conservation.species %></div>
+			<br/>
+			<div id = 'protein_seq_wrapper'>
+				<%= highlight_mod_in_species(conservation.seq, @psm.array_with_mod_positions_in_protein) %>
+			</div>
+		</td>
+	</tr>
+	<% end %>
+	<% end %>
+</table>
 

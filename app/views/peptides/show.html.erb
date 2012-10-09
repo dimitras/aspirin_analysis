@@ -11,9 +11,21 @@
 		<td><b>Penalized Rank Product:</b>  <%= @peptide.penalized_rp %></td>
 	</tr>
 	<tr>
+		<td><b>Experiment:</b>  <%= @peptide.experiment %></td>
+	</tr>
+	<tr>
+		<td><b>Cutoff for peptide expectancy:</b>  
+			<% if @peptide.cutoff == 10 %> none 
+			<% else %>
+				<%= @peptide.cutoff %>
+			<% end %>
+		</td>
+	</tr>
+	<tr>
 		<td><br/><hr><br/></td>
 	</tr>
 </table>
+<h2>Peptide Spectrum matches:</h2>
 <br/><br/>
 <table>
 	<% @peptide.psms.each do |psm| %>

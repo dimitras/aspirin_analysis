@@ -5,6 +5,8 @@ namespace :db do
 	require 'pep_dat'
 	require 'mascot/dat'
 	require 'fasta_parser'
+	require 'maf_like_parser'
+	require 'accno_to_refseq_translator'
 
 	# ENDOGENOUS RESULTS-SETS #
 
@@ -212,7 +214,7 @@ namespace :db do
 	# USAGE: rake db:load_proteins --trace
 	desc "Import all proteins info to database"
 	task :load_proteins  => :environment do
-		proteome_db_fasta_file = 'data/raw/uniprot_human_db_04182012.fasta'
+		proteome_db_fasta_file = 'data/raw/HUMAN.2011_11.fasta'
 		proteome_db_fap = FastaParser.open(proteome_db_fasta_file)
 		
 		proteome_db_fap.each do |fasta_entry|
@@ -225,59 +227,56 @@ namespace :db do
 		end
 	end
 
+	
+	# USAGE: rake db:update_psm_with_conservation_info --trace
+	desc "Update psm with information for conservation"
+	task :update_psm_with_conservation_info  => :environment do
+		maf_file = 'data/raw/aln_nocutoff.maf'
+		gene_from_accno_file = 'data/raw/accno2genenames.txt'
+		mafp =  MAFlikeParser.open(maf_file)
+		mrna_accno_from_gene_fp =  AccnoToRefseqTranslator.open(gene_from_accno_file)
 
-	# # USAGE: rake db:load_conservation_data --trace
-	# desc "Import conservation data to database"
-	# task :load_conservation_data  => :environment do
-	# 	maf_file = 'data/raw/aln_nocutoff.maf'
-	# 	gene_from_accno_file = 'data/raw/accno2genenames.txt'
-	# 	mafp =  MAFlikeParser.open(maf_file)
-	# 	refseq_from_gene_fp =  AccnoToRefseqTranslator.open(gene_from_accno_file)
+		psms = Psm.all
+		psms.each do |psm|
+			pep_seq = psm.pep_seq
+			genename = psm.protein.genename
+			mod_letters = psm.mod_letters_array
+			mod_positions = psm.mod_positions_array
 
-	# 	letters_in_conserved_positions_in_all_species = []
-	# 	species_ids = mafp.species_ids
-	# 	psms_entries = Peptide.psms
+			# find the entries with the genename that is connected to the psm in the translation file, and keep the entry tha contains the peptide
+			maf_block = nil
+			mod_positions_in_protein_array = []
+			if mrna_accno_from_gene_fp.refseq_from_genename(genename) != nil
+				mrna_accno_from_gene_fp.refseq_from_genename(genename).each do |entry|
+					maf_block = mafp.maf_block_by_id(entry.accno)
+					if maf_block != nil && maf_block.subseq_contained_in_ref_species?(pep_seq)
+						mod_letters.each do |letter|
+							mod_positions_in_protein_array << maf_block.find_positions_for_seq_letter_in_ref_species(pep_seq, mod_positions)
+						end
+						puts psm.id.to_s + " " + psm.accno.to_s + ' ' + pep_seq.to_s + ' ' + mod_positions.join(',') + " " + genename.to_s  + " " + maf_block.accno.to_s + " " + mod_positions_in_protein_array.join(',')
+						psm_update = Psm.update(psm.id, { :mrna_id => maf_block.accno, :mod_positions_in_protein =>  mod_positions_in_protein_array.join(',') })
+						break
+					elsif maf_block == nil
+						next
+					end
+				end
+			end
+		end
+	end
 
-	# 	psms_entries.each do |psm|
-			
-	# 		maf_block = maf_block_by_id(psm.accno)
-	# 		proteins = psm.find_all_by_pep_seq(psm.pep_seq)
-			
-	# 		proteins.each do |protein|
+	
+	# USAGE: rake db:load_conservation_data --trace
+	desc "Import conservation (maf) data to database"
+	task :load_conservation_data  => :environment do
+		maf_file = 'data/raw/aln_nocutoff.maf'
+		mafp =  MAFlikeParser.open(maf_file)
 
-	# 			species_ids.each_index do |species_idx|
-	# 				letters_in_conserved_positions = []
-	# 				letters.keys.each do |letter|
-	# 					if maf_block == nil
-	# 						if species_ids[species_idx] == 'hg19'
-	# 							letters_in_conserved_positions << letter.to_s
-	# 						end
-	# 						next
-	# 					end
-	# 					letters_for_secondary_species = maf_block.corresponding_letters_for_secondary_species(peptide, letter, species_ids)
-	# 					letters_in_conserved_positions << letter.to_s + ":" + letters_for_secondary_species[species_idx].to_s
-	# 				end
-	# 				letters_in_conserved_positions_in_all_species << letters_in_conserved_positions.join(",")
-	# 			end
-	# 			Conservation.create(:accno => psm.accno, :prot_seq => , :pep_seq => , :modification => , :species => )
-	# 		end
-	# 	end
-	# end
-
-
-	# # USAGE: rake db:load_spectra_data --trace
-	# desc "Import spectra data to database using fastercsv"
-	# task :load_spectra_data  => :environment do
-	# 	sfields = []
-	# 	scols = []
-	# 	FasterCSV.foreach("data/") do |row|
-	# 		if sfields.empty?
-	# 			sfields = row
-	# 		else sfields.empty?
-	# 			scols = row
-	# 			Spectra.create(:ions1 => scols[], :query => scols[], :title => scols[])
-	# 		end
-	# 	end
-	# end
-
+		mafp.each do |maf_block|
+			maf_block.maf_entries.each do |species, maf_entry|
+				puts maf_entry.accno
+				conservation = Conservation.create(:seq => maf_entry.seq,  :species => maf_entry.species, :mrna_id => maf_entry.accno)
+			end
+		end
+	end
+	
 end

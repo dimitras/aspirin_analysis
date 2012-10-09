@@ -10,18 +10,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121003031900) do
+ActiveRecord::Schema.define(:version => 20121009002007) do
 
   create_table "conservations", :force => true do |t|
-    t.string   "primary_species_accno"
     t.string   "mrna_id"
     t.string   "species"
     t.text     "seq"
-    t.datetime "created_at",            :null => false
-    t.datetime "updated_at",            :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
-  add_index "conservations", ["primary_species_accno"], :name => "index_conservations_on_primary_species_accno"
+  add_index "conservations", ["mrna_id"], :name => "index_conservations_on_mrna_id"
 
   create_table "pages", :force => true do |t|
     t.string   "name"
@@ -78,8 +77,8 @@ ActiveRecord::Schema.define(:version => 20121003031900) do
     t.string   "rep"
     t.string   "mod"
     t.float    "cutoff"
-    t.datetime "created_at",     :null => false
-    t.datetime "updated_at",     :null => false
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.string   "mod_positions"
     t.string   "title"
     t.string   "charge"
@@ -87,6 +86,9 @@ ActiveRecord::Schema.define(:version => 20121003031900) do
     t.binary   "mzs"
     t.binary   "intensities"
     t.binary   "assigned_yions"
+    t.string   "mrna_id"
+    t.string   "mod_positions_in_protein"
+    t.string   "conserved_mod_positions_in_protein"
   end
 
   add_index "psms", ["pep_seq"], :name => "index_psms_on_pep_seq"

@@ -27,11 +27,24 @@ require 'gnuplot'
 
 class Psm < ActiveRecord::Base
 	
-	attr_accessible :accno, :cutoff, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :assigned_yions
+	attr_accessible :accno, :cutoff, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :assigned_yions, :mrna_id, :mod_positions_in_protein
 
 	has_many :peptidepsms
   	has_many :peptides, :through => :peptidepsms
 	belongs_to :protein, :primary_key => "accno", :foreign_key => "accno"
+	has_many :conservations, :primary_key => "mrna_id", :foreign_key => "mrna_id"
+
+	def mod_letters_array()
+		return mod.split(/,/)
+	end
+	
+	def mod_positions_array()
+		return mod_positions.split(/,/)
+	end
+
+	def array_with_mod_positions_in_protein()
+		return mod_positions_in_protein.split(/,/)
+	end
 
 	def mzs_array()
 		return Marshal::restore(mzs)

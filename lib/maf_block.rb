@@ -23,33 +23,33 @@ class MAFBlock
 		return @maf_entries[@ref_species].positions_of_subseq(seq)
 	end
 
-	def find_positions_for_seq_letter_in_ref_species(seq, letter)
-		letter_positions = []
+	
+
+	def find_positions_for_seq_letter_in_ref_species(seq, letter_positions_in_seq)
+		letter_positions_in_ref_species = []
 		positions = find_seq_positions_in_ref_species(seq)
-		letter_positions_in_seq = (0..seq.length - 1).find_all { |i| seq[i, 1] == letter }
 		positions.each do |position|
 			letter_positions_in_seq.each do |letter_position|
-				letter_positions  << position + letter_position
+				letter_positions_in_ref_species  << position + letter_position.to_i
 			end
 		end
-		# puts seq.to_s + "\t:\t" + letter.to_s + "\t:\t" + letter_positions.to_s
-		return letter_positions
+		return letter_positions_in_ref_species
 	end
 
-	def corresponding_letters_for_secondary_species(seq, letter, species_ids)
-		letters = []
-		positions = find_positions_for_seq_letter_in_ref_species(seq, letter)
-		species_ids.each do |species_id|
-			letters_by_species = ''
-			positions.each do |position|
-				if !@maf_entries.has_key?(species_id)
-					letters_by_species << "NA"
-				else
-					letters_by_species << @maf_entries[species_id].letter_at_position(position).to_s + "(" + position.to_s + ")"
-				end
-			end
-			letters << letters_by_species
-		end
-		return letters
-	end
+# 	def corresponding_letters_for_secondary_species(seq, letter, species_ids)
+# 		letters = []
+# 		positions = find_positions_for_seq_letter_in_ref_species(seq, letter)
+# 		species_ids.each do |species_id|
+# 			letters_by_species = ''
+# 			positions.each do |position|
+# 				if !@maf_entries.has_key?(species_id)
+# 					letters_by_species << "NA"
+# 				else
+# 					letters_by_species << @maf_entries[species_id].letter_at_position(position).to_s + "(" + position.to_s + ")"
+# 				end
+# 			end
+# 			letters << letters_by_species
+# 		end
+# 		return letters
+# 	end
 end
