@@ -14,8 +14,9 @@
 		<td><b>Experiment:</b>  <%= @peptide.experiment %></td>
 	</tr>
 	<tr>
-		<td><b>Cutoff for peptide expectancy:</b>  
-			<% if @peptide.cutoff == 10 %> none 
+		<td><b>Peptide expectancy threshold:</b>
+			<% if @peptide.cutoff == 10 %> 
+				none 
 			<% else %>
 				<%= @peptide.cutoff %>
 			<% end %>
@@ -55,7 +56,7 @@
 	</tr>
 
 	<tr id='bold_headers'>
-		<td colspan = 6>Spectra</td>
+		<td colspan = 6>Spectrum</td>
 		<td colspan = 5>Assigned y-ions table</td>
 	</tr>
 
@@ -69,24 +70,29 @@
 					<td>m/z</td>
 					<td>intensity</td>
 					<td>index</td>
+					<td>aa</td>
 				</tr>
-				<% arr = psm.assigned_yions_array.transpose %>
-				<% arr0 = arr[0] %>
-				<% arr1 = arr[1] %>
-				<% arr2 = arr[2] %>
 
-				<% for i in 0..arr0.length-1 %>
-					<tr>
-						<td> 
-							<%= arr0[i] %>
-						</td>
-						<td> 
-							<%= arr1[i] %>
-						</td>
-						<td> 
-							<%= arr2[i] %>
-						</td>
-					</tr>
+                                <% arr = psm.assigned_yions_array
+                                  arr.sort! {|a,b| b[2] <=> a[2]}
+                                %>
+
+                                <% for i in 0..arr.length-1 %>
+                                  <tr>
+                                    <% for j in 0..arr[i].length-1 %>
+                                      <td>
+                                              <%= arr[i][j] %>
+                                      </td>
+                                    <% end %>
+                                    <td>
+                                      <%=
+                                        arr[i][2] =~ /y\((\d+)\)/
+                                        pos = psm.pep_seq.length - $1.to_i
+                                        psm.pep_seq[pos..pos]
+                                      %>
+                                    </td>
+                                    
+                                  </tr>
 				<% end %>
 			</table> 
 		</td>

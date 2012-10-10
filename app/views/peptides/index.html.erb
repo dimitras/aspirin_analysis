@@ -10,20 +10,24 @@
         <th>
           <div align="left">
             <%= form_tag(peptides_path(), :method => "get") do  %>
-                <%= label_tag(:experiment, "Choose experiment:") %>
+                <%= label_tag(:experiment, "Experiment:") %>
                 <% experiments_array = [
                                     ["3H-Acetylation",'3h-Acetylation'],
                                     ["Endogenous-Acetylation",'Endogenous-Acetylation']
                                    ] %>
                 <%= select_tag(:experiment, options_for_select(experiments_array, :selected => params[:experiment]), :include_blank => true, :onchange => 'this.form.submit();') %>
 
-                <%= label_tag(:cutoff, "Filter peptides by cutoff:") %>
+                <%= label_tag(:cutoff, "Peptide expectancy threshold:") %>
                 <% cutoffs_array = [
-				    ["none",10.0],
+				    ["none",nil],
                                     ["0.05",0.05],
                                     ["0.5",0.5]
                                    ] %>
                 <%= select_tag(:cutoff, options_for_select(cutoffs_array, :selected => params[:cutoff]), :onchange => 'this.form.submit();') %>
+
+                <%= label_tag(:length_threshold, "Max peptide length:") %>
+                <%= text_field_tag(:length_threshold, params[:length_threshold], :placeholder => params[:length_threshold], :size => 3) %>
+                <%= submit_tag('Go') %>
             <% end%>
           </div>
         </th>
@@ -36,22 +40,20 @@
 <table>
     <% if params[:experiment] %>
     
-	<tr>
-		<th>Peptide</th>
-		<th>Rank Product</th>
-		<th>Penalized Rank Product</th>
-	</tr>
+    	<tr>
+    		<th>Peptide</th>
+    		<th>Rank Product</th>
+    		<th>Penalized Rank Product</th>
+    	</tr>
 
-	<% @peptides.each do |peptide| %>
+    	<% @peptides.each do |peptide| %>
+    		<tr>
+        		<td><%= link_to(peptide.pep_seq, peptide_path(peptide)) %></td>
+        		<td><%= peptide.rank_product %></td>
+        		<td><%= peptide.penalized_rp %></td>
+    		</tr>
 
-		<tr>
-		<td><%= link_to(peptide.pep_seq, peptide_path(peptide)) %></td>
-		<td><%= peptide.rank_product %></td>
-		<td><%= peptide.penalized_rp %></td>
-		</tr>
-
-	<% end %>
-
+    	<% end %>
     <% end %>
     
 </table>

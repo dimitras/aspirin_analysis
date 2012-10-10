@@ -55,6 +55,11 @@ td a:active {
 #content {
     padding: 20px 10px;
 }
+h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 17px;
+    font-weight: normal;
+}
 #header {
     background-color: #900;
     margin: 0;

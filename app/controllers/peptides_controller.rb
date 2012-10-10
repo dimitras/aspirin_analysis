@@ -5,11 +5,18 @@ class PeptidesController < ApplicationController
   # GET /peptides.json
   def index
     if !params[:cutoff] || params[:cutoff] == ''
-      params[:cutoff] = nil
-      @peptides = Peptide.where(:cutoff => 10.0, :experiment => params[:experiment]).paginate(:page => params[:page])
+      cutoff = 10
     else
-      @peptides = Peptide.where(:cutoff => params[:cutoff].to_f, :experiment => params[:experiment]).paginate(:page => params[:page])
+      cutoff = params[:cutoff]
     end
+
+    if !params[:length_threshold] || params[:length_threshold] == ''
+      length_threshold = 1000
+    else
+      length_threshold = params[:length_threshold]
+    end
+
+    @peptides = Peptide.filtered(params[:experiment], cutoff, length_threshold.to_i).paginate(:page => params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -17,6 +24,7 @@ class PeptidesController < ApplicationController
     end
   end
 
+  
   # GET /peptides/1
   # GET /peptides/1.json
   def show
