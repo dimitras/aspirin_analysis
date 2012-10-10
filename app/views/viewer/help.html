@@ -1,19 +1,21 @@
 <h3> Help </h3>
-
 <h1>Querying Aspirin database</h1>
 <p>
-	 You can filter the results by:<br/>
-	 - experiment (3H-Acetylation or Endogenous Acetylation)<br/>
-	 - peptide expectancy threshold (none, 0.05, 0.5)<br/>
-	 - maximum peptide length
+	 You can filter the results by:
+	 <ol>
+		<li>experiment (3H-Acetylation or Endogenous Acetylation)</li>
+		<li>peptide expectancy threshold (none, 0.05, 0.5)</li>
+		<li>maximum peptide length (if no value is entered, the filter has no effect)</li>
+	</ol>
 </p>
 <br/>
 
 <h1>About the peptide list</h1>
 <p>
+	The peptide list is sorted by ascending rank product. The most significant peptide appears first in the list.
 	<ol>
-		<li>Rank Product: score each peptide to sort them by significance (the lowest the better)</li>
-		<li>Penalty: additional small penalty in the rank product</li>
+		<li>Rank Product: score for each peptide to sort them by significance (the lowest the better). <br/> The + replicates are being sorted by descending the pep_score, while the - reps are being sorted by ascending the pep_score. This is done to get lowest (worst) rank for the peptides located in - replicates (penalty-like scoring). Each peptide found in a replicate could be found more than once, so the rank of the hit with the highest pep_score was chosen. If a peptide is not found in a replicate means that it was highly impossible so it gets by default the lowest rank in the replicate.</li>
+		<li>Penalty: additional penalty applied on the rank product.<br/>Multiplied by 10 the ranks in the - replicates. This penalty is not applied if a peptide is not found in a replicate, it just gets by default the lowest rank in the replicate.</li>
 	</ol>
 </p>
 <br/>
@@ -48,15 +50,16 @@
 			<br/><br/>
 			The species aligned are:
 			<br/>
-			- hg19 (human)<br/>
-			- rn4 (rat)<br/>
-			- oryCun2 (rabbit)<br/>
-			- mm9 (mouse)<br/>
-			- gorGor1 (gorilla)<br/>
-			- bosTau4 (cow)<br/>
-			- danRer6 (zebrafish)<br/>
-			- galGal3 (chicken)
-			
+			<ol>
+				<li>hg19 (human)</li>
+				<li>rn4 (rat)</li>
+				<li>oryCun2 (rabbit)</li>
+				<li>mm9 (mouse)</li>
+				<li>gorGor1 (gorilla)</li>
+				<li>bosTau4 (cow)</li>
+				<li>danRer6 (zebrafish)</li>
+				<li>galGal3 (chicken)</li>
+			</ol>
 		</li>
 	</ol>
 </p>
