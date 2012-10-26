@@ -16,7 +16,7 @@ class PeptidesController < ApplicationController
       length_threshold = params[:length_threshold]
     end
 
-    @peptides = Peptide.filtered(params[:experiment], cutoff, length_threshold.to_i).paginate(:page => params[:page])
+    @peptides = Peptide.filtered(params[:experiment], cutoff, length_threshold.to_i).enzymed(params[:enzyme]).paginate(:page => params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -29,7 +29,7 @@ class PeptidesController < ApplicationController
   # GET /peptides/1.json
   def show
     @peptide = Peptide.find(params[:id])
-    logger.info( "PEPTIDE: (#{params[:id]}) #{@peptide.pep_seq}")
+    logger.info("PEPTIDE: (#{params[:id]}) #{@peptide.pep_seq}")
 
     respond_to do |format|
       format.html # show.html.erb

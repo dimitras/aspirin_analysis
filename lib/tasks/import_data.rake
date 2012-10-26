@@ -278,5 +278,60 @@ namespace :db do
 			end
 		end
 	end
+
+
+	# USAGE: rake db:update_psm --trace
+	desc "Update psm with information for enzyme and more query details"
+	task :update_psm  => :environment do
+
+		# parse csv and create a hash
+		foldername = 'data/raw/'
+		rep_enz = {}
+		cols = []
+		FasterCSV.foreach(foldername + "replicates_enzymes.csv") do |row|
+			cols = row
+			replicate = cols[0]
+			enzyme = cols[1]
+			if !rep_enz[replicate]
+				rep_enz[replicate] = enzyme
+			end
+		end
+		puts rep_enz.inspect
+
+		# update psms table with enzymes
+		psms = Psm.all
+		psms.each do |psm|
+			puts psm.id.to_s + " " + psm.pep_seq.to_s + ' ' + psm.rep + ' ' + rep_enz[psm.rep]
+			psm_update = Psm.update(psm.id, { :enzyme => rep_enz[psm.rep] })
+		end
+	end
+
+
+	# USAGE: rake db:update_peptide_with_enzyme --trace
+	desc "Update peptide with enzyme information for enzyme and more query details"
+	task :update_peptide_with_enzyme  => :environment do
+
+		# parse csv and create a hash
+		foldername = 'data/raw/'
+		rep_enz = {}
+		cols = []
+		FasterCSV.foreach(foldername + "replicates_enzymes.csv") do |row|
+			cols = row
+			replicate = cols[0]
+			enzyme = cols[1]
+			if !rep_enz[replicate]
+				rep_enz[replicate] = enzyme
+			end
+		end
+		puts rep_enz.inspect
+
+		# update psms table with enzymes
+		psms = Psm.all
+		psms.each do |psm|
+			puts psm.id.to_s + " " + psm.pep_seq.to_s + ' ' + psm.rep + ' ' + rep_enz[psm.rep]
+			psm_update = Psm.update(psm.id, { :enzyme => rep_enz[psm.rep] })
+		end
+	end
+
 	
 end

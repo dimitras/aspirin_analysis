@@ -26,7 +26,7 @@
 		<td><br/><hr><br/></td>
 	</tr>
 </table>
-<h2>Peptide Spectrum matches:</h2>
+<h2>Peptide Spectrum matches (<%= @peptide.psms.count %> found):</h2>
 <br/><br/>
 <table>
 	<% @peptide.psms.each do |psm| %>
@@ -36,8 +36,9 @@
 		<td>Genename</td>
 		<td>Score</td>
 		<td>Expectancy</td>
-		<td>Replicate</td>
+		<td>Ret Time</td>
 		<td>Modification</td>
+		<td>Replicate</td>
 		<td>Title</td>
 	</tr>
 	<tr>
@@ -46,8 +47,9 @@
 		<td><%= psm.protein.genename %></td>
 		<td><%= psm.pep_score %></td>
 		<td><%= psm.cutoff %></td>
-		<td><%= psm.rep.split('.')[0] %></td>
+		<td><%= psm.rtinseconds %></td>
 		<td><%= psm.mod %>(<%= psm.mod_positions %>)</td>
+		<td><%= psm.rep.split('.')[0] %></td>
 		<td><%= psm.title %></td>
 	</tr>
 
@@ -73,26 +75,24 @@
 					<td>aa</td>
 				</tr>
 
-                                <% arr = psm.assigned_yions_array
-                                  arr.sort! {|a,b| b[2] <=> a[2]}
-                                %>
-
-                                <% for i in 0..arr.length-1 %>
-                                  <tr>
-                                    <% for j in 0..arr[i].length-1 %>
-                                      <td>
-                                              <%= arr[i][j] %>
-                                      </td>
-                                    <% end %>
-                                    <td>
-                                      <%=
-                                        arr[i][2] =~ /y\((\d+)\)/
-                                        pos = psm.pep_seq.length - $1.to_i
-                                        psm.pep_seq[pos..pos]
-                                      %>
-                                    </td>
-                                    
-                                  </tr>
+                <% arr = psm.assigned_yions_array
+                  arr.sort! {|a,b| b[2] <=> a[2]}
+                %>
+                <% for i in 0..arr.length-1 %>
+					<tr>
+						<% for j in 0..arr[i].length-1 %>
+							<td>
+								<%= arr[i][j] %>
+							</td>
+						<% end %>
+						<td>
+							<%=
+								arr[i][2] =~ /y\((\d+)\)/
+								pos = psm.pep_seq.length - $1.to_i
+								psm.pep_seq[pos..pos]
+							%>
+						</td>
+					</tr>
 				<% end %>
 			</table> 
 		</td>

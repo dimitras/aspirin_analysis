@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121009002007) do
+ActiveRecord::Schema.define(:version => 20121022185524) do
 
   create_table "conservations", :force => true do |t|
     t.string   "mrna_id"
@@ -89,6 +89,7 @@ ActiveRecord::Schema.define(:version => 20121009002007) do
     t.string   "mrna_id"
     t.string   "mod_positions_in_protein"
     t.string   "conserved_mod_positions_in_protein"
+    t.text     "enzyme"
   end
 
   add_index "psms", ["pep_seq"], :name => "index_psms_on_pep_seq"

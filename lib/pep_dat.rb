@@ -199,6 +199,7 @@ class Pep_dat
 	# Returns a map of peaks that have ions assigned to them
 	# http://174.129.8.134/mascot/help/results_help.html#PEP
 	# example: http://174.129.8.134/mascot/cgi/peptide_view.pl?from=100&to=800&_label_all=0&file=..%2Fdata%2F20120323%2FF001507.dat&query=20052&hit=1&section=5&ave_thresh=38&_ignoreionsscorebelow=0&report=0&_sigthreshold=0.05&_msresflags=3138&_msresflags2=10&percolate=0&percolate_rt=0&tick1=100&tick_int=50&range=700&index=B4DHQ2&px=1
+	# http://174.129.8.134/mascot/cgi/peptide_view.pl?from=0&to=0&Reset=Full+range&_label_all=0&file=..%2Fdata%2F20120323%2FF001507.dat&query=40008&hit=1&section=5&ave_thresh=38&_ignoreionsscorebelow=0&report=0&_sigthreshold=0.05&_msresflags=3138&_msresflags2=10&percolate=0&percolate_rt=0&tick1=220&tick_int=20&range=360&index=B4DS57&px=1
 	def assign(ions,tol=1.0)
 		# ion is [idx,b,b++,b*,b0] or y
 		pkmap = Array.new(mzs.length)

@@ -30,8 +30,9 @@ class Peptide < ActiveRecord::Base
     where("experiment = ? AND cutoff = ? AND LENGTH(pep_seq) <= ?", experiment, cutoff, length_threshold)
   }
 
-          
+  scope :enzymed, lambda{|enzyme| joins(:psms).where("psms.enzyme = ?", enzyme)}
+
 # scope :fdr, lambda{|c|  joins(:psms).where("psms.cutoff" <= c)}
 # scope :filtered_psms, joins(:psms).where("psms.cutoff <= ?" ,  0.05)
-  
+
 end

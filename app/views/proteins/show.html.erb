@@ -33,16 +33,20 @@
 </p>
 
 <p>
+  <b>Mrna id:</b>
+  <%= @psm.mrna_id %>
+</p>
+
+<p>
 	<b>Sequence:</b></br>
 	<div id = 'protein_seq_wrapper'>
 		<%= highlight_seq(@protein.seq, @psm.pep_seq, @psm.mod_positions_array) %></br>
 	</div>
 </p>
-<br/><br/>
+<br/>
 <hr>
 <br/>
 <h3>Multiple alignment for conservation of the <%= @psm.mod %>(<%= @psm.array_with_mod_positions_in_protein %>) modification:</h3>
-<br/><br/>
 <table>
 	<% @psm.conservations.each do |conservation| %>
 	<% if conservation.species != 'hg19' %>
