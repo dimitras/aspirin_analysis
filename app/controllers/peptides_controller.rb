@@ -10,13 +10,17 @@ class PeptidesController < ApplicationController
       cutoff = params[:cutoff]
     end
 
-    if !params[:length_threshold] || params[:length_threshold] == ''
-      length_threshold = 1000
-    else
-      length_threshold = params[:length_threshold]
+    @peptides = Peptide.filtered(params[:experiment], cutoff)
+    
+    if params[:length_threshold] && params[:length_threshold] != ''
+       @peptides = @peptides.longer_than(params[:length_threshold].to_i)
     end
 
-    @peptides = Peptide.filtered(params[:experiment], cutoff, length_threshold.to_i).enzymed(params[:enzyme]).paginate(:page => params[:page])
+    if params[:enzyme] && params[:enzyme] != ''
+      @peptides = @peptides.enzymed(params[:enzyme])
+    end
+
+    @peptides = @peptides.paginate(:page => params[:page])
 
     respond_to do |format|
       format.html # index.html.erb

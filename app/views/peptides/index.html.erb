@@ -51,7 +51,6 @@
     		<th>Peptide</th>
     		<th>Rank Product</th>
     		<th>Penalized Rank Product</th>
-            <th>?</th>
     	</tr>
 
     	<% @peptides.each do |peptide| %>
@@ -59,7 +58,6 @@
         		<td><%= link_to(peptide.pep_seq, peptide_path(peptide)) %></td>
         		<td><%= peptide.rank_product %></td>
         		<td><%= peptide.penalized_rp %></td>
-                <td><%= peptide.enzymed(params[:enzyme]).inspect %></td>
     		</tr>
     	<% end %>
     <% end %>

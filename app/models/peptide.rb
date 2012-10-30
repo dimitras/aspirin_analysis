@@ -26,13 +26,21 @@ class Peptide < ActiveRecord::Base
   has_many :peptidepsms
   has_many :psms, :through => :peptidepsms, :order => 'psms.pep_score DESC'
 
-  scope :filtered, lambda { |experiment, cutoff, length_threshold|
-    where("experiment = ? AND cutoff = ? AND LENGTH(pep_seq) <= ?", experiment, cutoff, length_threshold)
+  scope :filtered, lambda { |experiment, cutoff|
+    where("peptides.experiment = ? AND peptides.cutoff = ?", experiment, cutoff)
+  }
+  
+  scope :longer_than, lambda { |length|
+    {
+      :conditions => ["LENGTH(peptides.pep_seq) <= ?", length]
+    }
   }
 
-  scope :enzymed, lambda{|enzyme| joins(:psms).where("psms.enzyme = ?", enzyme)}
-
-# scope :fdr, lambda{|c|  joins(:psms).where("psms.cutoff" <= c)}
-# scope :filtered_psms, joins(:psms).where("psms.cutoff <= ?" ,  0.05)
+  scope :enzymed, lambda { |enzyme|
+    {
+      :include => :psms,
+      :conditions => ["psms.enzyme = ?", enzyme]
+    }
+  }
 
 end
