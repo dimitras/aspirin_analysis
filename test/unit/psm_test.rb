@@ -18,10 +18,16 @@
 #  rtinseconds                        :string(255)
 #  mzs                                :binary
 #  intensities                        :binary
-#  assigned_yions                     :binary
 #  mrna_id                            :string(255)
 #  mod_positions_in_protein           :string(255)
 #  conserved_mod_positions_in_protein :string(255)
+#  enzyme                             :text
+#  assigned_yions_mzs_table           :binary
+#  assigned_yions_intensities_table   :binary
+#  assigned_bions_mzs_table           :binary
+#  assigned_bions_intensities_table   :binary
+#  yions                              :binary
+#  bions                              :binary
 #
 
 require 'test_helper'

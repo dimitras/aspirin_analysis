@@ -8,6 +8,10 @@ namespace :db do
 	require 'maf_like_parser'
 	require 'accno_to_refseq_translator'
 
+	##################################################################
+	# peptides table
+	##################################################################
+
 	# ENDOGENOUS RESULTS-SETS #
 
 	# USAGE: rake db:load_peptides_with_cutoff005_for_endogenous --trace
@@ -115,9 +119,13 @@ namespace :db do
 	end
 
 
-	# USAGE: rake db:load_all_psms --trace
+	##################################################################
+	# psms table
+	##################################################################
+
+	# USAGE: rake db:load_psms --trace
 	desc "Import all hits csv to database using fastercsv"
-	task :load_all_psms  => :environment do
+	task :load_psms  => :environment do
 		['data/3H_Ace/', 'data/En_ACE/'].each do |foldername|
 			modification = []
 			fieldnames = []
@@ -131,11 +139,23 @@ namespace :db do
 					peptide = row[22].to_s
 					prot_accno = row[1].to_s
 					prot_desc = row[2].to_s
+                    query_no = row[9].to_i
+                    parent_mass = row[14].to_f
+                    calc_mass = row[16].to_f
+                    delta = row[17].to_f
+                    cutoff = row[20].to_f
+                    pep_score = row[19].to_f
+                    replicate = row[27].split('/')[3].split('_')[1]
+
+                    # if peptide == 'TKDGSGLEE' && query_no == 40008 # condition for test purposes only
+         			# if peptide == 'IGAPFSLK' && query_no == 20052
+         			# if peptide == 'IAGLSK' && query_no == 858
+         				
 					modification.clear
 					if foldername.include? '3H_Ace'
 						experiment = '3h-Acetylation'
-						row[24].scan(/Acetyl:.+\(\d\)\s\((\w)\)/).each do |i| #Acetyl:2H(3) (K); 2 Acetyl:2H(3) (S)
-							modification << $1
+						row[24].scan(/Acetyl:.+?\(\d\)\s\((\w)\)/).each do |i| #Acetyl:2H(3) (K); Acetyl:2H(3) (S)
+							modification << i[0]
 						end
 						#get modification positions from string
 						mod_positions_str = row[25].split('.')[1].split('')
@@ -148,7 +168,7 @@ namespace :db do
 					elsif foldername.include? 'En_ACE'
 						experiment = 'Endogenous-Acetylation'
 						row[24].scan(/Acetyl\s\((\w)\)/).each do |i| # Acetyl (K)
-							modification << $1
+							modification << i[0]
 						end
 						# get modification positions from string
 						mod_positions_str = row[25].split('.')[1].split('')
@@ -159,14 +179,6 @@ namespace :db do
 							end
 						end
 					end
-
-					query_no = row[9].to_i
-					parent_mass = row[14].to_f
-					calc_mass = row[16].to_f
-					delta = row[17].to_f
-					cutoff = row[20].to_f
-					pep_score = row[19].to_f
-					replicate = row[27].split('/')[3].split('_')[1]
 
 					# take the ions table from dat file
 					filename = foldername + 'dats/' + replicate +  '.dat'
@@ -181,53 +193,55 @@ namespace :db do
 					serialized_intensities = Marshal::dump(intensities)
 
 					# create new Pep and get the assigned yions
-					pepl = Pep_dat.new(peptide, mzs, intensities, mod_positions)
-					assigned_yions = pepl.assigned_yionstable
-					serialized_assigned_yions = Marshal::dump(assigned_yions)
+					pep = Pep_dat.new(peptide, mzs, intensities, experiment, mod_positions)
+					yions = pep.yions
+					assigned_yions_mzs_table = pep.assigned_yions_mzs_table
+					assigned_yions_intensities_table = pep.assigned_yions_intensities_table
+					bions = pep.bions
+					assigned_bions_mzs_table = pep.assigned_bions_mzs_table
+					assigned_bions_intensities_table = pep.assigned_bions_intensities_table
+					
+					# puts
+					# puts peptide
+					# puts
+					# puts yions.inspect
+					# puts
+					# puts assigned_yions_mzs_table.inspect
+					# puts
+					# puts assigned_yions_intensities_table.inspect
+					# puts
+					# puts bions.inspect
+					# puts
+					# puts assigned_bions_mzs_table.inspect
+					# puts
+					# puts assigned_bions_intensities_table.inspect
 
-					# feed database with psms
-					psm = Psm.create(:accno => prot_accno, :cutoff => cutoff, :mod => modification.join(','), :pep_seq => peptide, :pep_score => pep_score, :query => query_no, :rep => replicate, :mod_positions => mod_positions.join(','), :title => title, :charge => charge, :rtinseconds => rtinseconds, :mzs => serialized_mzs, :intensities => serialized_intensities, :assigned_yions => serialized_assigned_yions)
+					serialized_yions = Marshal::dump(yions)
+					serialized_bions = Marshal::dump(bions)
+					serialized_assigned_yions_mzs_table = Marshal::dump(assigned_yions_mzs_table)
+					serialized_assigned_bions_mzs_table = Marshal::dump(assigned_bions_mzs_table)
+					serialized_assigned_yions_intensities_table = Marshal::dump(assigned_yions_intensities_table)
+					serialized_assigned_bions_intensities_table = Marshal::dump(assigned_bions_intensities_table)
+
+					# feed psms table
+					psm = Psm.create(:accno => prot_accno, :cutoff => cutoff, :mod => modification.join(','), :pep_seq => peptide, :pep_score => pep_score, :query => query_no, :rep => replicate, :mod_positions => mod_positions.join(','), :title => title, :charge => charge, :rtinseconds => rtinseconds, :mzs => serialized_mzs, :intensities => serialized_intensities, :yions => serialized_yions, :bions => serialized_bions, :assigned_yions_mzs_table => serialized_assigned_yions_mzs_table, :assigned_yions_intensities_table => serialized_assigned_yions_intensities_table, :assigned_bions_mzs_table => serialized_assigned_bions_mzs_table, :assigned_bions_intensities_table => serialized_assigned_bions_intensities_table)
 
 					# find all peptides
 					peps = Peptide.where("cutoff >= ? AND pep_seq = ? AND experiment = ?" ,  psm.cutoff, peptide, experiment)
 
+					# feed join table
 					peps.each do |pep|
 						peptide_psm = Peptidepsm.create(:peptide_id => pep.id, :psm_id => psm.id)
 						puts "PEPTIDE: " + pep.pep_seq.to_s + "\t" + pep.id.to_s + " PSM: " + psm.id.to_s + "\t" + psm.cutoff.to_s + " => " + peptide_psm.peptide_id.to_s  + "\t" + peptide_psm.psm_id.to_s
 					end
+
+                    # end # end condition for test purposes only
 				end
 			end
 		end
 	end
-	
-	# # USAGE: rake db:populate_peptides_psms_join --trace
-	# desc "Populate join table for peptides - psms"
-	# task :populate_peptides_psms_join  => :environment do
-	# 	Peptide.find_each do |pep|
-	# 		pep_psms = Psm.where("cutoff <= ? AND pep_seq = ?" ,  pep.cutoff, pep.pep_seq)
-	# 		pep.psm_ids = pep_psms.map{|psm| psm.id}
-	# 		pep.update
-	# 	end
-	# end
 
-	
-	# USAGE: rake db:load_proteins --trace
-	desc "Import all proteins info to database"
-	task :load_proteins  => :environment do
-		proteome_db_fasta_file = 'data/raw/HUMAN.2011_11.fasta'
-		proteome_db_fap = FastaParser.open(proteome_db_fasta_file)
-		
-		proteome_db_fap.each do |fasta_entry|
-			if fasta_entry.desc.include? 'GN='
-				genename = fasta_entry.desc.split('GN=')[1].split(' ')[0]
-			else
-				genename = 'NA'
-			end
-			protein = Protein.create(:accno => fasta_entry.accno, :desc => fasta_entry.desc, :seq => fasta_entry.seq, :species => 'hg19', :genename => genename)
-		end
-	end
 
-	
 	# USAGE: rake db:update_psm_with_conservation_info --trace
 	desc "Update psm with information for conservation"
 	task :update_psm_with_conservation_info  => :environment do
@@ -264,7 +278,60 @@ namespace :db do
 		end
 	end
 
+
+	# USAGE: rake db:update_psm_with_enzyme --trace
+	desc "Update psm with information for enzyme"
+	task :update_psm_with_enzyme  => :environment do
+
+		# parse csv and create a hash
+		foldername = 'data/raw/'
+		rep_enz = {}
+		cols = []
+		FasterCSV.foreach(foldername + "replicates_enzymes.csv") do |row|
+			cols = row
+			replicate = cols[0]
+			enzyme = cols[1]
+			if !rep_enz[replicate]
+				rep_enz[replicate] = enzyme
+			end
+		end
+		puts rep_enz.inspect
+
+		# update psms table with enzymes
+		psms = Psm.all
+		psms.each do |psm|
+			puts psm.id.to_s + " " + psm.pep_seq.to_s + ' ' + psm.rep + ' ' + rep_enz[psm.rep]
+			psm_update = Psm.update(psm.id, { :enzyme => rep_enz[psm.rep] })
+		end
+	end
+
+		
+
+	##################################################################
+	# proteins table
+	##################################################################
+
+	# USAGE: rake db:load_proteins --trace
+	desc "Import all proteins info to database"
+	task :load_proteins  => :environment do
+		proteome_db_fasta_file = 'data/raw/HUMAN.2011_11.fasta'
+		proteome_db_fap = FastaParser.open(proteome_db_fasta_file)
+		
+		proteome_db_fap.each do |fasta_entry|
+			if fasta_entry.desc.include? 'GN='
+				genename = fasta_entry.desc.split('GN=')[1].split(' ')[0]
+			else
+				genename = 'NA'
+			end
+			protein = Protein.create(:accno => fasta_entry.accno, :desc => fasta_entry.desc, :seq => fasta_entry.seq, :species => 'hg19', :genename => genename)
+		end
+	end
+
 	
+	##################################################################
+	# conservations table
+	##################################################################
+
 	# USAGE: rake db:load_conservation_data --trace
 	desc "Import conservation (maf) data to database"
 	task :load_conservation_data  => :environment do
@@ -278,60 +345,5 @@ namespace :db do
 			end
 		end
 	end
-
-
-	# USAGE: rake db:update_psm --trace
-	desc "Update psm with information for enzyme and more query details"
-	task :update_psm  => :environment do
-
-		# parse csv and create a hash
-		foldername = 'data/raw/'
-		rep_enz = {}
-		cols = []
-		FasterCSV.foreach(foldername + "replicates_enzymes.csv") do |row|
-			cols = row
-			replicate = cols[0]
-			enzyme = cols[1]
-			if !rep_enz[replicate]
-				rep_enz[replicate] = enzyme
-			end
-		end
-		puts rep_enz.inspect
-
-		# update psms table with enzymes
-		psms = Psm.all
-		psms.each do |psm|
-			puts psm.id.to_s + " " + psm.pep_seq.to_s + ' ' + psm.rep + ' ' + rep_enz[psm.rep]
-			psm_update = Psm.update(psm.id, { :enzyme => rep_enz[psm.rep] })
-		end
-	end
-
-
-	# USAGE: rake db:update_peptide_with_enzyme --trace
-	desc "Update peptide with enzyme information for enzyme and more query details"
-	task :update_peptide_with_enzyme  => :environment do
-
-		# parse csv and create a hash
-		foldername = 'data/raw/'
-		rep_enz = {}
-		cols = []
-		FasterCSV.foreach(foldername + "replicates_enzymes.csv") do |row|
-			cols = row
-			replicate = cols[0]
-			enzyme = cols[1]
-			if !rep_enz[replicate]
-				rep_enz[replicate] = enzyme
-			end
-		end
-		puts rep_enz.inspect
-
-		# update psms table with enzymes
-		psms = Psm.all
-		psms.each do |psm|
-			puts psm.id.to_s + " " + psm.pep_seq.to_s + ' ' + psm.rep + ' ' + rep_enz[psm.rep]
-			psm_update = Psm.update(psm.id, { :enzyme => rep_enz[psm.rep] })
-		end
-	end
-
 	
 end

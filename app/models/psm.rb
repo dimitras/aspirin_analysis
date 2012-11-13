@@ -18,10 +18,16 @@
 #  rtinseconds                        :string(255)
 #  mzs                                :binary
 #  intensities                        :binary
-#  assigned_yions                     :binary
 #  mrna_id                            :string(255)
 #  mod_positions_in_protein           :string(255)
 #  conserved_mod_positions_in_protein :string(255)
+#  enzyme                             :text
+#  assigned_yions_mzs_table           :binary
+#  assigned_yions_intensities_table   :binary
+#  assigned_bions_mzs_table           :binary
+#  assigned_bions_intensities_table   :binary
+#  yions                              :binary
+#  bions                              :binary
 #
 
 require 'rubygems'
@@ -29,7 +35,7 @@ require 'gnuplot'
 
 class Psm < ActiveRecord::Base
 	
-	attr_accessible :accno, :cutoff, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :assigned_yions, :mrna_id, :mod_positions_in_protein, :enzyme
+	attr_accessible :accno, :cutoff, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :assigned_yions, :mrna_id, :mod_positions_in_protein, :enzyme, :assigned_yions_mzs_table, :assigned_yions_intensities_table, :assigned_bions_mzs_table, :assigned_bions_intensities_table, :yions, :bions
 
 	has_many :peptidepsms
   	has_many :peptides, :through => :peptidepsms

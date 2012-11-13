@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121022185524) do
+ActiveRecord::Schema.define(:version => 20121113172633) do
 
   create_table "conservations", :force => true do |t|
     t.string   "mrna_id"
@@ -85,11 +85,16 @@ ActiveRecord::Schema.define(:version => 20121022185524) do
     t.string   "rtinseconds"
     t.binary   "mzs"
     t.binary   "intensities"
-    t.binary   "assigned_yions"
     t.string   "mrna_id"
     t.string   "mod_positions_in_protein"
     t.string   "conserved_mod_positions_in_protein"
     t.text     "enzyme"
+    t.binary   "assigned_yions_mzs_table"
+    t.binary   "assigned_yions_intensities_table"
+    t.binary   "assigned_bions_mzs_table"
+    t.binary   "assigned_bions_intensities_table"
+    t.binary   "yions"
+    t.binary   "bions"
   end
 
   add_index "psms", ["pep_seq"], :name => "index_psms_on_pep_seq"

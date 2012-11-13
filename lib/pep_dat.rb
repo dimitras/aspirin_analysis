@@ -1,74 +1,201 @@
 require 'rubygems'
 
-# REMEMBER TO uncomment the correct modifications (MODS)
-# for 3H acetylation
-MODS = {
-	'K' => 45.029395,
-	'S' => 45.029395,
-	'T' => 45.029395
-}
-# for endogenous
+# # REMEMBER TO uncomment the correct modifications (MODS)
+# # for 3H acetylation
 # MODS = {
-#   'K' => 42.010565,
-#   'S' => 42.010565,
-#   'T' => 42.010565
+# 	'K' => 45.029395,
+# 	'S' => 45.029395,
+# 	'T' => 45.029395
 # }
+# # for endogenous
+# # MODS = {
+# #   'K' => 42.010565,
+# #   'S' => 42.010565,
+# #   'T' => 42.010565
+# # }
 
-# masses taken from the dat file
-MW = {
-	'A' => 71.037114 ,
-	'R' => 156.101111,
-	'N' => 114.042927,
-	'D' => 115.026943,
-	'C' => 160.030649,
-	'E' => 129.042593,
-	'Q' => 128.058578,
-	'G' => 57.021464 ,
-	'H' => 137.058912,
-	'I' => 113.084064,
-	'L' => 113.084064,
-	'K' => 128.094963,
-	'M' => 131.040485,
-	'F' => 147.068414,
-	'P' => 97.052764 ,
-	'S' => 87.032028 ,
-	'T' => 101.047679,
-	'U' => 150.953630,
-	'W' => 186.079313,
-	'Y' => 163.063329,
-	'V' => 99.068414,
-	"K*" => 128.094963 + MODS['K'],
-	"S*" => 87.032028 + MODS['S'],
-	"T*" => 101.047679 + MODS['T']
-}
+# # masses taken from the dat file
+# MW = {
+# 	'A' => 71.037114 ,
+# 	'R' => 156.101111,
+# 	'N' => 114.042927,
+# 	'D' => 115.026943,
+# 	'C' => 160.030649,
+# 	'E' => 129.042593,
+# 	'Q' => 128.058578,
+# 	'G' => 57.021464 ,
+# 	'H' => 137.058912,
+# 	'I' => 113.084064,
+# 	'L' => 113.084064,
+# 	'K' => 128.094963,
+# 	'M' => 131.040485,
+# 	'F' => 147.068414,
+# 	'P' => 97.052764 ,
+# 	'S' => 87.032028 ,
+# 	'T' => 101.047679,
+# 	'U' => 150.953630,
+# 	'W' => 186.079313,
+# 	'Y' => 163.063329,
+# 	'V' => 99.068414,
+# 	"K*" => 128.094963 + MODS['K'],
+# 	"S*" => 87.032028 + MODS['S'],
+# 	"T*" => 101.047679 + MODS['T']
+# }
 
 H = 1.007825
 OH = 17.00274
 H2O = 18.010565
 NH3 = 17.026549
 
-class Pep_dat
-	attr_accessor :iontable, :bions, :yions, :seq, :mzs, :intensities
 
-	def initialize(seq, mzs, intensities, mods=[])
+class Pep_dat
+	attr_accessor :iontable, :bions, :yions, :seq, :mzs, :intensities, :mod_flag
+
+	def initialize(seq, mzs, intensities, mod_flag, mods=[])
 		@seq = seq.strip.upcase.split ""
 		@mzs = mzs
 		@intensities = intensities
+		@mod_flag = mod_flag
 		add_mods_to_pep_seq(mods)
 
 		@iontable = []
 		@bions = []
 		@yions = []
 		build_ions_tables()
-		@assigned_yionstable = nil
 	end
 
+	##########################################
+	# Some extra accessors
+	##########################################
+	def yions_pkmap() # pkmap: [[label, y, y++, y*, y0]...] each row corresponds to an mz from the spectrum
+		if @yions_pkmap == nil
+			@yions_pkmap = assign(@yions, 1.0)
+		end
+		return @yions_pkmap
+	end
+	
+	def bions_pkmap() # pkmap: [[label, b, b++, b*, b0]...] each row corresponds to an mz from the spectrum
+		if @bions_pkmap == nil
+			@bions_pkmap = assign(@bions, 1.0)
+		end
+		return @bions_pkmap
+	end
+
+	def assigned_yions_mzs_table()
+		if @assigned_yions_mzs_table == nil
+			create_assigned_yions_mzs_and_intensities_table
+		end
+		return @assigned_yions_mzs_table
+	end
+
+	def assigned_yions_intensities_table()
+		if @assigned_yions_intensities_table == nil
+			create_assigned_yions_mzs_and_intensities_table
+		end
+		return @assigned_yions_intensities_table
+	end
+
+	def assigned_bions_mzs_table()
+		if @assigned_bions_mzs_table == nil
+			create_assigned_bions_mzs_and_intensities_table
+		end
+		return @assigned_bions_mzs_table
+	end
+
+	def assigned_bions_intensities_table()
+		if @assigned_bions_intensities_table == nil
+			create_assigned_bions_mzs_and_intensities_table
+		end
+		return @assigned_bions_intensities_table
+	end
+
+	##########################################
+	# Interface methods
+	##########################################
+	# put methods that are exported from the class
+	
+	
+	##########################################
+	# Internal methods
+	##########################################
+	def create_assigned_yions_mzs_and_intensities_table()
+		assigned_yions_mzs_table = Array.new
+		assigned_yions_intensities_table = Array.new
+		yions.each_index do |i|
+			assigned_yions_mzs_table[i] = [yions[i][0], nil, nil, nil, nil]
+			assigned_yions_intensities_table[i] = [yions[i][0], nil, nil, nil, nil]
+		end
+
+		yions_pkmap.each_index do |pkmap_i|
+			pkmap_row = yions_pkmap[pkmap_i]
+
+			if pkmap_row && pkmap_row[0]
+				label = pkmap_row[0]
+				for i in 1..pkmap_row.length-1
+					if(pkmap_row[i] && pkmap_row[i] > 0)
+						if assigned_yions_mzs_table[label-1][i]
+
+							stored_dff = (assigned_yions_mzs_table[label-1][i] - yions[label-1][i]).abs
+							new_dff = (mzs[pkmap_i] - yions[label-1][i]).abs
+							if new_dff < stored_dff
+								assigned_yions_mzs_table[label-1][i] = mzs[pkmap_i]
+								assigned_yions_intensities_table[label-1][i] = intensities[pkmap_i]
+							end
+						else
+							assigned_yions_mzs_table[label-1][i] = mzs[pkmap_i]
+							assigned_yions_intensities_table[label-1][i] = intensities[pkmap_i]
+						end
+					end
+				end
+			end
+		end
+
+		@assigned_yions_mzs_table = assigned_yions_mzs_table
+		@assigned_yions_intensities_table = assigned_yions_intensities_table
+	end
+
+	def create_assigned_bions_mzs_and_intensities_table()
+		assigned_bions_mzs_table = Array.new
+		assigned_bions_intensities_table = Array.new
+		bions.each_index do |i|
+			assigned_bions_mzs_table[i] = [bions[i][0], nil, nil, nil, nil]
+			assigned_bions_intensities_table[i] = [bions[i][0], nil, nil, nil, nil]
+		end
+
+		bions_pkmap.each_index do |pkmap_i|
+			pkmap_row = bions_pkmap[pkmap_i]
+
+			if pkmap_row && pkmap_row[0]
+				label = pkmap_row[0]
+				for i in 1..pkmap_row.length-1
+					if(pkmap_row[i] && pkmap_row[i] > 0)
+						if assigned_bions_mzs_table[label-1][i]
+
+							stored_dff = (assigned_bions_mzs_table[label-1][i] - bions[label-1][i]).abs
+							new_dff = (mzs[pkmap_i] - bions[label-1][i]).abs
+							if new_dff < stored_dff
+								assigned_bions_mzs_table[label-1][i] = mzs[pkmap_i]
+								assigned_bions_intensities_table[label-1][i] = intensities[pkmap_i]
+							end
+						else
+							assigned_bions_mzs_table[label-1][i] = mzs[pkmap_i]
+							assigned_bions_intensities_table[label-1][i] = intensities[pkmap_i]
+						end
+					end
+				end
+			end
+		end
+
+		@assigned_bions_mzs_table = assigned_bions_mzs_table
+		@assigned_bions_intensities_table = assigned_bions_intensities_table
+	end
+	
 	def build_ions_tables()
 		@seq.each_index do |i|
 			idx = i + 1
+			b = y = [nil]*5
 
 			#Bions
-			b = y = [nil]*5
 			unless i == @seq.length - 1
 				tmp = @seq[0..i]
 				b  = calc_ion_mz_table(tmp)
@@ -86,6 +213,45 @@ class Pep_dat
 		end
 	end
 
+	# Grab legitimate y ions and rank them in intensity desc
+	def ranked_yions_intensities_idx()
+		ranked_idx = []
+		idxset = []
+		intset=[]
+		yions_pkmap.each_index do |i|
+                        # puts i.to_s + '\t' + yions_pkmap.join(",")
+                        if yions_pkmap[i] && yions_pkmap[i][0] && !yions_pkmap[i][1].nil? && yions_pkmap[i][1] > 0
+				idxset.push(i)
+				intset.push(intensities[i])
+			end
+		end
+		intset.each do
+			maxi = intset.index(intset.max())
+			ranked_idx.push( idxset[maxi] )
+			intset[maxi] = 0
+		end
+		return ranked_idx
+	end
+	
+	# Grab legitimate b ions and rank them in intensity desc
+	def ranked_bions_intensities_idx()
+		ranked_idx = []
+		idxset = []
+		intset=[]
+		bions_pkmap.each_index do |i|
+            if bions_pkmap[i] && bions_pkmap[i][0] && !bions_pkmap[i][1].nil? && bions_pkmap[i][1] > 0
+				idxset.push(i)
+				intset.push(intensities[i])
+			end
+		end
+		intset.each do
+			maxi = intset.index(intset.max())
+			ranked_idx.push( idxset[maxi] )
+			intset[maxi] = 0
+		end
+		return ranked_idx
+	end
+	
 	def add_mods_to_pep_seq(mods)
 		mods.each do |m|
 			@seq[m - 1] += "*"
@@ -95,7 +261,7 @@ class Pep_dat
 	def calc_mw(seq=[])
 		mw = 0.0
 		seq.each do |aa|
-			mw += MW[aa]
+			mw += mws[aa]
 		end
 		return mw
 	end
@@ -126,75 +292,7 @@ class Pep_dat
 		end
 		return ions
 	end
-
-	# Get the peaks of all assigned yions table (with mass-intensity pairs)
-	def assigned_yionstable()
-		ranked_idx = ranked_yions_intensities_idx()
-
-		assigned_ions = Array.new
-		assigned_ions_hash = {}
-		all_labels = []
-		ranked_idx.each_with_index do |i,ii|
-			if( assigned_yions[i] && !assigned_yions[i][0].nil? && 1
-				assigned_yions[i][0] > 0 )
-				# assigned_ions << Array.new
-				if all_labels.include? "y(#{assigned_yions[i][0]})"
-					next
-				end
-				assigned_ions << [assigned_yions[i][1],intensities[i],"y(#{assigned_yions[i][0]})"]
-				all_labels << "y(#{assigned_yions[i][0]})"
-				assigned_ions_hash[intensities[i]] = "y(#{assigned_yions[i][0]})"
-			end
-		end
-		# assigned_ions.reject! { |c| c.empty? }
-		return assigned_ions
-	end
-
-	# get all yions (mass-intensity) and the label(index) for each assigned one # NOT USED
-	def all_yionstable()
-		# assigned_ions.reject! { |c| c.empty? }
-		assigned_ions_hash = assigned_yionstable()
-
-		for i in 0..mzs.length-1
-			if assigned_ions_hash.has_key?(intensities[i].to_f)
-				puts [mzs[i], intensities[i], "y(#{assigned_yions[i][0]})"].join(',')
-			else
-				puts [mzs[i], intensities[i], ''].join(',')
-			end
-		end
-	end
-
-	# Grab legitimate y ions and rank them in intensity desc
-	def ranked_yions_intensities_idx()
-		ranked_idx = []
-		idxset = []
-		intset=[]
-		assigned_yions.each_index do |i|
-			if assigned_yions[i] && assigned_yions[i][0] && !assigned_yions[i][1].nil? && assigned_yions[i][1] > 0
-				idxset.push(i)
-				intset.push(intensities[i])
-			end
-		end
-		intset.each do
-			maxi = intset.index(intset.max())
-			ranked_idx.push( idxset[maxi] )
-			intset[maxi] = 0
-		end
-		return ranked_idx
-	end
-
-	def assigned_yions()
-		if @assigned_yions == nil
-			assign_yions()
-		end
-		return @assigned_yions
-	end
-
-	def assign_yions()
-		@assigned_yions = assign(@yions, 1.0)
-		return @assigned_yions
-	end
-
+	
 	# Assigns the ion table to a given mass spectrum, walking through the m/z and ion series arrays to assign the ions to a mass peaks, given a tolerance
 	# Returns a map of peaks that have ions assigned to them
 	# http://174.129.8.134/mascot/help/results_help.html#PEP
@@ -215,11 +313,12 @@ class Pep_dat
 			# x = [idx,+,++,*,0]
 			x = [nil]*5
 			dff = mzs[i1] - ions[i2][1]
+            # puts [i1, i2, mzs[i1], ions[i2][1], dff].join("\t")
+                        
 			if dff > tol
 				# mass is too large, get next ion
 				pkmap[i1] = x
 				i2 += 1
-				next
 			elsif dff <  0 - tol
 				# mass is too small for the + ion
 				# checking other ions
@@ -231,19 +330,19 @@ class Pep_dat
 				end
 				# water loss
 				if ions[i2][4] && !((mzs[i1] - ions[i2][4]).abs <= tol) && !((mzs[i1] - ions[i2][4]).abs > tol)
-				x[0]=  i2 + 1
-				x[4] = ions[i2][4]
+                                        x[0]=  i2 + 1
+                                        x[4] = ions[i2][4]
 				end
 				# mass is too small, advance
 				pkmap[i1] = x
 				i1 += 1
-				next
-			end
-			# set the index
-			x[0] = i2  + 1
-			x[1] = ions[i2][1]
-			pkmap[i1] = x
-			i1 += 1
+                        else
+                                # set the index
+                                x[0] = i2  + 1
+                                x[1] = ions[i2][1]
+                                pkmap[i1] = x
+                                i1 += 1
+                        end
 		end
 		# recheck  spectra for ++ daughter ions
 		i1 = i2 =  0
@@ -257,7 +356,7 @@ class Pep_dat
 				# mass is too large
 				i2 += 1
 				next
-			elsif (dff.abs() <= tol )
+			elsif dff.abs() <= tol
 				pkmap[i1][0] = i2+1
 				pkmap[i1][2] = ions[i2][2]
 			end
@@ -274,3 +373,84 @@ class Pep_dat
 		@seq.join("")
 	end
 end
+
+
+# amino acid and modification masses taken from dat file #
+
+def mods(flag)
+	if flag == "3h-Acetylation"
+		return {
+			'K' => 45.029395,
+			'S' => 45.029395,
+			'T' => 45.029395
+		}
+	elsif flag == "Endogenous-Acetylation"
+		return {
+			'K' => 42.010565,
+			'S' => 42.010565,
+			'T' => 42.010565
+		}
+	end
+end
+
+def mws()
+	return {
+		'A' => 71.037114 ,
+		'R' => 156.101111,
+		'N' => 114.042927,
+		'D' => 115.026943,
+		'C' => 160.030649,
+		'E' => 129.042593,
+		'Q' => 128.058578,
+		'G' => 57.021464 ,
+		'H' => 137.058912,
+		'I' => 113.084064,
+		'L' => 113.084064,
+		'K' => 128.094963,
+		'M' => 131.040485,
+		'F' => 147.068414,
+		'P' => 97.052764 ,
+		'S' => 87.032028 ,
+		'T' => 101.047679,
+		'U' => 150.953630,
+		'W' => 186.079313,
+		'Y' => 163.063329,
+		'V' => 99.068414,
+		"K*" => 128.094963 + mods(mod_flag)['K'],
+		"S*" => 87.032028 + mods(mod_flag)['S'],
+		"T*" => 101.047679 + mods(mod_flag)['T']
+	}
+end
+
+
+########################################################
+# TODO DELETE THE FOLLOWING 11/12/2012
+########################################################
+
+#### CREATING ALL Y/B-IONS TABLES ####
+
+# 	# get mass-intensity values for all yions and label(index) for the assigned ones
+# 	def all_yionstable()
+# 		all_yions = Array.new
+# 		for i in 0..mzs.length-1
+# 			if assigned_yions_table.include?(mzs[i].to_f)
+# 				all_yions << [mzs[i], intensities[i], "y(#{yions_pkmap[i][0]})"]
+# 			else
+# 				all_yions << [mzs[i], intensities[i], '']
+# 			end
+# 		end
+# 		return all_yions
+# 	end
+#
+# 	# get mass-intensity values for all bions and label(index) for the assigned ones
+# 	def all_bionstable()
+# 		all_bions = Array.new
+# 		for i in 0..mzs.length-1
+# 			if assigned_bions_table.include?(mzs[i].to_f)
+# 				all_bions << [mzs[i], intensities[i], "b(#{bions_pkmap[i][0]})"]
+# 			else
+# 				all_bions << [mzs[i], intensities[i], '']
+# 			end
+# 		end
+# 		return all_bions
+# 	end
