@@ -58,41 +58,44 @@
 	</tr>
 
 	<tr id='bold_headers'>
-		<td colspan = 6>Spectrum</td>
-		<td colspan = 5>Assigned y-ions table</td>
+		<td colspan = 11>Spectrum</td>
 	</tr>
 
 	<tr>
-		<td colspan=6>
-			<a href="http://nemesis.itmat.upenn.edu/aspirin/figures/<%= psm.plot_assigned_yions %>" target="_blank" ><img src="<%= "../figures/" + psm.plot_assigned_yions %>" border=no/></a>
+		<td colspan = 11>
+			<a href="http://nemesis.itmat.upenn.edu/aspirin/figures/<%= psm.plot_assigned_ions_through_spectrum %>" target="_blank"><img src="<%= "../figures/" + psm.plot_assigned_ions_through_spectrum %>" border=no/></a>
 		</td>
-		<td colspan=5 valign='top'>
-			<table>
-				<tr id='bold_headers'>
-					<td>m/z</td>
-					<td>intensity</td>
-					<td>index</td>
-					<td>aa</td>
-				</tr>
+	</tr>
 
-                <% arr = psm.assigned_yions_array
-                  arr.sort! {|a,b| b[2] <=> a[2]}
-                %>
-                <% for i in 0..arr.length-1 %>
-					<tr>
-						<% for j in 0..arr[i].length-1 %>
-							<td>
-								<%= arr[i][j] %>
-							</td>
+	<tr id='bold_headers'>
+		<td colspan = 11>Matched fragment ions table*</td>
+	</tr>
+
+	<tr>
+		<td colspan=11>
+			<table border = 1>
+				<tr id='bold_headers'>
+					<td>aa</td>
+					<td>b</td>
+					<td>b+</td>
+					<td>b++</td>
+					<td>y</td>
+					<td>y+</td>
+					<td>y++</td>
+				</tr>
+				<% ionstable = psm.ionstable %>
+				<% for i in 0..ionstable.length-1 %>
+				<tr>
+					<% for j in 0..ionstable[i].length-1 %>
+						<% if ionstable[i][j].to_s.include? ":" %>
+							<td nowrap id='highlight_assigned'>
+						<% else %>
+							<td nowrap>
 						<% end %>
-						<td>
-							<%=
-								arr[i][2] =~ /y\((\d+)\)/
-								pos = psm.pep_seq.length - $1.to_i
-								psm.pep_seq[pos..pos]
-							%>
-						</td>
-					</tr>
+								<%= ionstable[i][j] %>
+							</td>
+					<% end %>
+				</tr>
 				<% end %>
 			</table> 
 		</td>
@@ -102,6 +105,8 @@
 	</tr>
 	<% end %>
 </table>
+<br/>
+<i>* The masses are shown in a combined format of: theoretical mass(assigned experimental mass : assigned intensity)</i>
 <br/><br/>
 
 

@@ -35,7 +35,7 @@ require 'gnuplot'
 
 class Psm < ActiveRecord::Base
 	
-	attr_accessible :accno, :cutoff, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :assigned_yions, :mrna_id, :mod_positions_in_protein, :enzyme, :assigned_yions_mzs_table, :assigned_yions_intensities_table, :assigned_bions_mzs_table, :assigned_bions_intensities_table, :yions, :bions
+	attr_accessible :accno, :cutoff, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :mrna_id, :mod_positions_in_protein, :enzyme, :assigned_yions_mzs_table, :assigned_yions_intensities_table, :assigned_bions_mzs_table, :assigned_bions_intensities_table, :yions, :bions
 
 	has_many :peptidepsms
   	has_many :peptides, :through => :peptidepsms
@@ -66,42 +66,168 @@ class Psm < ActiveRecord::Base
 		return Marshal::restore(intensities)
 	end
 	
-	def assigned_yions_array()
-		return Marshal::restore(assigned_yions)
+	##########################################################
+	# yions
+	##########################################################
+
+	def yions_array()
+		return Marshal::restore(yions)
 	end
 
-	def plot_assigned_yions()
+	def assigned_yions_mzs_array()
+		return Marshal::restore(assigned_yions_mzs_table)
+	end
+
+	def assigned_yions_intensities_array()
+		return Marshal::restore(assigned_yions_intensities_table)
+	end
+	
+	##########################################################
+	# bions
+	##########################################################
+
+	def bions_array()
+		return Marshal::restore(bions)
+	end
+
+	def assigned_bions_mzs_array()
+		return Marshal::restore(assigned_bions_mzs_table)
+	end
+
+	def assigned_bions_intensities_array()
+		return Marshal::restore(assigned_bions_intensities_table)
+	end
+
+	##########################################################
+	# interface methods
+	##########################################################
+
+	def ionstable()
+		ionstable = Array.new
+		aa = Array.new
+		y0 = Array.new
+		y1 = Array.new
+		y2 = Array.new
+		b0 = Array.new
+		b1 = Array.new
+		b2 = Array.new
+		for i in 0..bions_array.length - 1
+			aa[i] = pep_seq[i..i]
+			
+			b0[i] = "b(#{i+1})"
+			if assigned_bions_mzs_array[i][1]
+				b1[i] = "#{bions_array[i][1]} (#{assigned_bions_mzs_array[i][1]} : #{assigned_bions_intensities_array[i][1]})"
+			else
+				b1[i] = bions_array[i][1]
+			end
+
+			if assigned_bions_mzs_array[i][2]
+				b2[i] = "#{bions_array[i][2]} (#{assigned_bions_mzs_array[i][2]} : #{assigned_bions_intensities_array[i][2]})"
+			else
+				b2[i] = bions_array[i][2]
+			end
+			
+			y0[i] = "y(#{i+1})"
+			if assigned_yions_mzs_array[i][1]
+				y1[i] = "#{yions_array[i][1]} (#{assigned_yions_mzs_array[i][1]} : #{assigned_yions_intensities_array[i][1]})"
+			else
+				y1[i] = yions_array[i][1]
+			end
+
+			if assigned_yions_mzs_array[i][2]
+				y2[i] = "#{yions_array[i][2]} (#{assigned_yions_mzs_array[i][2]} : #{assigned_yions_intensities_array[i][2]})"
+			else
+				y2[i] = yions_array[i][2]
+			end
+		end
+
+		aa.push(pep_seq.last)
+		b0.push('')
+		b1.push('')
+		b2.push('')
+		y0.push('')
+		y1.push('')
+		y2.push('')
+		y0.reverse!
+		y1.reverse!
+		y2.reverse!
+		for i in 0..bions_array.length
+			ionstable[i] = [aa[i], b0[i], b1[i], b2[i], y0[i], y1[i], y2[i]]
+		end
+			
+		
+		return ionstable
+	end
+
+	def plot_assigned_ions_through_spectrum()
 		figures_folder = "public/figures/"
 		figure_filename = "fig_#{rep}_#{query}_#{pep_seq}.svg"
 		filename = figures_folder + figure_filename
+		
 		unless File.exists? filename
+			x = Array.new
+			y = Array.new
+			labels = Array.new
+			bx = Array.new
+			by = Array.new
+			blabels = Array.new
+
+			for i in 0..assigned_yions_mzs_array.length-1
+				for j in 1..assigned_yions_mzs_array[i].length-1
+					if assigned_yions_mzs_array[i][j]
+						x.push(assigned_yions_mzs_array[i][j])
+						y.push(assigned_yions_intensities_array[i][j])
+						labels.push("y#{"+"*j}(#{i+1})")
+					end
+
+					if assigned_bions_mzs_array[i][j]
+						bx.push(assigned_bions_mzs_array[i][j])
+						by.push(assigned_bions_intensities_array[i][j])
+						blabels.push("b#{"+"*j}(#{i+1})")
+					end
+				end
+			end
+
+			max_intensity = intensities_array.max
+			
 			Gnuplot.open do |gp|
 				Gnuplot::Plot.new( gp ) do |plot|
 					plot.output filename
-					plot.terminal 'svg'
-					plot.title  "#{title} - #{pep_seq}"
+					plot.terminal 'svg size 1100,500'
 					plot.ylabel 'intensity'
 					plot.xlabel 'm/z'
-					x = assigned_yions_array.collect{|mass| mass.first}
-					y = assigned_yions_array.collect{|arr| arr[1]}
-					labels = assigned_yions_array.collect{|idx| idx[2]}
-
+					plot.yrange "[0:#{max_intensity*1.4}]"
+					# plot.title  "#{title} - #{pep_seq}"
+					
+					# spectrum plot
 					plot.data << Gnuplot::DataSet.new( [mzs_array, intensities_array] ) do |ds|
-						ds.with = 'impulses linecolor rgb "blue"'
+						ds.with = 'impulses linecolor rgb "black"'
 						ds.linewidth = 1
 						ds.notitle
 					end
-
+					# yions plot
 					plot.data << Gnuplot::DataSet.new( [x, y] ) do |ds|
 						ds.with = 'impulses linecolor rgb "red"'
 						ds.linewidth = 1.5
 						ds.notitle
 					end
-
-					ymax = y.max
-					ylabels_pos = y.map{|value| value + ymax*0.05}
+					# bions plot
+					plot.data << Gnuplot::DataSet.new( [bx, by] ) do |ds|
+						ds.with = 'impulses linecolor rgb "red"'
+						ds.linewidth = 1.5
+						ds.notitle
+					end
+					
+					# y labels
+					ylabels_pos = y.map{|value| max_intensity*1.05}
 					plot.data << Gnuplot::DataSet.new( [x, ylabels_pos, labels] ) do |ds|
-						ds.with = 'labels textcolor lt 1 rotate left'
+						ds.with = 'labels textcolor lt 1 rotate left font ",10"'
+						ds.notitle
+					end
+# 					# b labels
+					bylabels_pos = by.map{|value| max_intensity*1.2}
+					plot.data << Gnuplot::DataSet.new( [bx, bylabels_pos, blabels] ) do |ds|
+						ds.with = 'labels textcolor lt 1 rotate left font ",10"'
 						ds.notitle
 					end
 				end

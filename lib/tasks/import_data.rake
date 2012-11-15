@@ -123,7 +123,7 @@ namespace :db do
 	# psms table
 	##################################################################
 
-	# USAGE: rake db:load_psms --trace
+	# USAGE: rake db:load_psms --trace #31751
 	desc "Import all hits csv to database using fastercsv"
 	task :load_psms  => :environment do
 		['data/3H_Ace/', 'data/En_ACE/'].each do |foldername|
@@ -345,5 +345,7 @@ namespace :db do
 			end
 		end
 	end
+
 	
 end
+
