@@ -42,10 +42,6 @@ class Psm < ActiveRecord::Base
 	belongs_to :protein, :primary_key => "accno", :foreign_key => "accno"
 	has_many :conservations, :primary_key => "mrna_id", :foreign_key => "mrna_id"
 
-	# scope :enzymed, lambda { |enzyme|
-	# 	where("enzyme = ?", enzyme)
-	# }
-
 	def mod_letters_array()
 		return mod.split(/,/)
 	end
@@ -101,6 +97,33 @@ class Psm < ActiveRecord::Base
 	##########################################################
 	# interface methods
 	##########################################################
+
+	def max_value_in_ions_array(ions_array)
+		max_value = nil
+		max_i = 0
+		max_j = 0
+		ions_array.each_with_index do |row, i|
+			row.each_with_index do |value, j|
+				if j > 0 && j < 3 && (max_value.nil? || value.to_f > max_value.to_f)
+					max_value = value
+					max_i = i
+					max_j = j
+				end
+			end
+		end
+		return max_i, max_j, max_value
+	end
+
+	def max_ion_coordinates()
+		(max_bion_i, max_bion_j, max_bion_value) = max_value_in_ions_array(assigned_bions_intensities_array)
+		(max_yion_i, max_yion_j, max_yion_value) = max_value_in_ions_array(assigned_yions_intensities_array)
+
+		if (max_bion_value > max_yion_value)
+			return "bion", max_bion_i, max_bion_j
+		else
+			return "yion", max_yion_i, max_yion_j
+		end
+	end
 
 	def ionstable()
 		ionstable = Array.new
@@ -193,10 +216,10 @@ class Psm < ActiveRecord::Base
 			Gnuplot.open do |gp|
 				Gnuplot::Plot.new( gp ) do |plot|
 					plot.output filename
-					plot.terminal 'svg size 1100,500'
+					plot.terminal 'svg size 1100,300'
 					plot.ylabel 'intensity'
 					plot.xlabel 'm/z'
-					plot.yrange "[0:#{max_intensity*1.4}]"
+					plot.yrange "[0:#{max_intensity*1.5}]"
 					# plot.title  "#{title} - #{pep_seq}"
 					
 					# spectrum plot

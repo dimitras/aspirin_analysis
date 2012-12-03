@@ -22,58 +22,12 @@
 			<% end %>
 		</td>
 	</tr>
-	<tr>
-		<td><br/><hr><br/></td>
-	</tr>
-</table>
-<h2>Peptide Spectrum matches (<%= @peptide.psms.count %> found):</h2>
-<br/><br/>
-<table>
-	<% @peptide.psms.each do |psm| %>
 	<tr id='bold_headers'>
-		<td>Query</td>
-		<td>Accession No</td>
-		<td>Genename</td>
-		<td>Score</td>
-		<td>Expectancy</td>
-		<td>Ret Time</td>
-		<td>Modification</td>
-		<td>Replicate</td>
-		<td>Title</td>
+		<td>Number of spectrums in which each ion is assigned as the most intense: </td>
 	</tr>
 	<tr>
-		<td><%= psm.query %></td>
-		<td><%= link_to psm.protein.accno, protein_path(psm.protein, :psm_id => psm.id) %></td>
-		<td><%= psm.protein.genename %></td>
-		<td><%= psm.pep_score %></td>
-		<td><%= psm.cutoff %></td>
-		<td><%= psm.rtinseconds %></td>
-		<td><%= psm.mod %>(<%= psm.mod_positions %>)</td>
-		<td><%= psm.rep.split('.')[0] %></td>
-		<td><%= psm.title %></td>
-	</tr>
-
-	<tr>
-		<td colspan = 11 height = 20></td>
-	</tr>
-
-	<tr id='bold_headers'>
-		<td colspan = 11>Spectrum</td>
-	</tr>
-
-	<tr>
-		<td colspan = 11>
-			<a href="http://nemesis.itmat.upenn.edu/aspirin/figures/<%= psm.plot_assigned_ions_through_spectrum %>" target="_blank"><img src="<%= "../figures/" + psm.plot_assigned_ions_through_spectrum %>" border=no/></a>
-		</td>
-	</tr>
-
-	<tr id='bold_headers'>
-		<td colspan = 11>Matched fragment ions table*</td>
-	</tr>
-
-	<tr>
-		<td colspan=11>
-			<table border = 1>
+		<td>
+			<table border = 1 id='ionstable' width='50%'>
 				<tr id='bold_headers'>
 					<td>aa</td>
 					<td>b</td>
@@ -83,30 +37,139 @@
 					<td>y+</td>
 					<td>y++</td>
 				</tr>
-				<% ionstable = psm.ionstable %>
-				<% for i in 0..ionstable.length-1 %>
-				<tr>
-					<% for j in 0..ionstable[i].length-1 %>
-						<% if ionstable[i][j].to_s.include? ":" %>
-							<td nowrap id='highlight_assigned'>
-						<% else %>
+				<% max_intensities_ionstable = @peptide.ionstable_with_counting_max_intensities %>
+				<% for i in 0..max_intensities_ionstable.length-1 %>
+					<tr>
+						<% for j in 0..max_intensities_ionstable[i].length-1 %>
 							<td nowrap>
-						<% end %>
-								<%= ionstable[i][j] %>
+								<% if j!=0 && j!=1 && j!=4 && !max_intensities_ionstable[i][j].nil?%>
+									<% if max_intensities_ionstable[i][j]>0 %>
+										<div id='most_intense_ions'>
+									<% else %>
+										<div>
+									<% end %>
+										<%= max_intensities_ionstable[i][j].to_s + "/" + @peptide.psms.count.to_s %>
+										</div>
+								<% else %>
+									<%= max_intensities_ionstable[i][j] %>
+								<% end %>
 							</td>
-					<% end %>
-				</tr>
+						<% end %>
+					</tr>
 				<% end %>
-			</table> 
+			</table>
 		</td>
 	</tr>
 	<tr>
-		<td colspan = 11><br/><hr><br/></td>
+		<td><br/><hr><br/></td>
 	</tr>
+</table>
+<h2>Peptide Spectrum matches (<%= @peptide.psms.count %> found):</h2>
+<br/><br/>
+<table>
+	<% @peptide.psms.each do |psm| %>
+		<tr id='bold_headers'>
+			<td>Query</td>
+			<td>Accession No</td>
+			<td>Genename</td>
+			<td>Score</td>
+			<td>Expectancy</td>
+			<td>Ret Time</td>
+			<td>Modification</td>
+			<td>Replicate</td>
+			<td>Title</td>
+		</tr>
+		<tr>
+			<td><%= psm.query %></td>
+			<td><%= link_to psm.protein.accno, protein_path(psm.protein, :psm_id => psm.id) %></td>
+			<td><%= psm.protein.genename %></td>
+			<td><%= psm.pep_score %></td>
+			<td><%= psm.cutoff %></td>
+			<td><%= psm.rtinseconds %></td>
+			<td><%= psm.mod %>(<%= psm.mod_positions %>)</td>
+			<td><%= psm.rep.split('.')[0] %></td>
+			<td><%= psm.title %></td>
+		</tr>
+
+		<tr>
+			<td colspan = 11 height = 20></td>
+		</tr>
+
+		<tr id='bold_headers'>
+			<td colspan = 11>Spectrum</td>
+		</tr>
+
+		<tr>
+			<td colspan = 11>
+				<a href="http://nemesis.itmat.upenn.edu/aspirin/figures/<%= psm.plot_assigned_ions_through_spectrum %>" target="_blank"><img src="<%= "../figures/" + psm.plot_assigned_ions_through_spectrum %>" border=no/></a>
+			</td>
+		</tr>
+
+		<%
+		intensities = []
+		[psm.assigned_yions_intensities_array, psm.assigned_bions_intensities_array].each do |array|
+			array.each do |row|
+				row.each_with_index do |value, index|
+					if index > 0 && !value.nil?
+						intensities.push(value)
+					end
+				end
+			end
+		end
+		max_intensities = intensities.sort! { |a,b| b <=> a }[0..2]
+		%>
+
+		
+		<tr id='bold_headers'>
+			<td colspan = 11>Matched fragment ions table</td>
+		</tr>
+
+
+		
+		<tr>
+			<td colspan=11>
+				<table border = 1>
+					<tr id='bold_headers'>
+						<td>aa</td>
+						<td>b</td>
+						<td>b+</td>
+						<td>b++</td>
+						<td>y</td>
+						<td>y+</td>
+						<td>y++</td>
+					</tr>
+					<% ionstable = psm.ionstable %>
+					<% for i in 0..ionstable.length-1 %>
+					<tr>
+						<% for j in 0..ionstable[i].length-1 %>
+							<% if ionstable[i][j].to_s.include? ":" %>
+								<td nowrap id='highlight_assigned'>
+								<% ionstable[i][j] =~ /:(.+)\)/ %>
+								<% intensity = $1 %>
+								<% if max_intensities.include? intensity.to_f %>
+									<div id='most_intense_ions'>
+								<% else %>
+									<div>
+								<% end %>
+								
+							<% else %>
+								<td nowrap>
+								
+							<% end %>
+								<%= ionstable[i][j] %>
+								</div>
+							</td>
+						<% end %>
+					</tr>
+					<% end %>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan = 11><br/><hr><br/></td>
+		</tr>
 	<% end %>
 </table>
-<br/>
-<i>* The masses are shown in a combined format of: theoretical mass(assigned experimental mass : assigned intensity)</i>
 <br/><br/>
 
 
