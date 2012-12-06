@@ -23,7 +23,10 @@
 		</td>
 	</tr>
 	<tr id='bold_headers'>
-		<td>Number of spectrums in which each ion is assigned as the most intense: </td>
+		<td><br/>Summary statistics <br/> </td>
+	</tr>
+	<tr id='bold_headers'>
+		<td>> Number of spectrums in which each ion is assigned as the most intense: </td>
 	</tr>
 	<tr>
 		<td>
@@ -57,6 +60,36 @@
 						<% end %>
 					</tr>
 				<% end %>
+			</table>
+		</td>
+	</tr>
+	<%
+		top_peaks = 5
+		summary = @peptide.summary_assigned_ions_for_top_peaks_count(top_peaks)
+		psms_number = @peptide.psms.length
+	%>
+	<tr id='bold_headers'>
+		<td>> Summary of the number of the assigned ions to the <%= top_peaks %> most intense peaks for all spectrums:</td>
+	</tr>
+	<tr>
+		<td>
+			<table border = 1 id='ionstable' width='50%'>
+				<tr>
+					<td>Number of ions assigned in the top <%= top_peaks %> peaks</td>
+					<% for i in 1..5 %>
+						<td>
+							<%= i.to_s + "/" + top_peaks.to_s %>
+						</td>
+					<% end %>
+				</tr>
+				<tr>
+					<td>Number of <%= psms_number %> spectrums</td>
+					<% for j in 1..summary.length-1 %>
+						<td>
+							<%= summary[j].to_s + "/" + psms_number.to_s %>
+						</td>
+					<% end %>
+				</tr>
 			</table>
 		</td>
 	</tr>

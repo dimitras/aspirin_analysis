@@ -32,6 +32,7 @@
 
 require 'rubygems'
 require 'gnuplot'
+require 'pep_dat'
 
 class Psm < ActiveRecord::Base
 	
@@ -98,6 +99,9 @@ class Psm < ActiveRecord::Base
 	# interface methods
 	##########################################################
 
+	### How many times an ion is found as the most intense ###
+	
+	# Find max value in the array and save it with its coordinates (i,j)
 	def max_value_in_ions_array(ions_array)
 		max_value = nil
 		max_i = 0
@@ -114,6 +118,7 @@ class Psm < ActiveRecord::Base
 		return max_i, max_j, max_value
 	end
 
+	# Compare max value of b and y arrays and save its label and coordinates (i,j)
 	def max_ion_coordinates()
 		(max_bion_i, max_bion_j, max_bion_value) = max_value_in_ions_array(assigned_bions_intensities_array)
 		(max_yion_i, max_yion_j, max_yion_value) = max_value_in_ions_array(assigned_yions_intensities_array)
@@ -125,6 +130,34 @@ class Psm < ActiveRecord::Base
 		end
 	end
 
+	### How many of 5 most intense peaks are assigned in ions ###
+
+	# rank (ex. intensities) array descending
+	def array_ranked_descending(array)
+		return array.sort{|x,y| y <=> x} 
+	end
+	
+	# get top X peaks based on highest intensities
+	def top_peaks(n)
+		return array_ranked_descending(intensities_array)[0..(n-1)]
+	end
+
+	def count_assigned_ions_for_top_peaks(n)
+		counter = 0
+		top_peaks = top_peaks(n)
+		[assigned_yions_intensities_array, assigned_bions_intensities_array].each do |array|
+			array.each_with_index do |row, i|
+				row.each_with_index do |value, j|
+					if j > 0 && row[j] && top_peaks.include?(row[j])
+						counter += 1
+					end
+				end
+			end
+		end
+		return counter
+	end
+	
+	# The Matched fragment ions table similar to the Mascot one
 	def ionstable()
 		ionstable = Array.new
 		aa = Array.new
@@ -182,6 +215,7 @@ class Psm < ActiveRecord::Base
 		return ionstable
 	end
 
+	# Plot the spectrum
 	def plot_assigned_ions_through_spectrum()
 		figures_folder = "public/figures/"
 		figure_filename = "fig_#{rep}_#{query}_#{pep_seq}.svg"
@@ -247,7 +281,7 @@ class Psm < ActiveRecord::Base
 						ds.with = 'labels textcolor lt 1 rotate left font ",10"'
 						ds.notitle
 					end
-# 					# b labels
+					# b labels
 					bylabels_pos = by.map{|value| max_intensity*1.2}
 					plot.data << Gnuplot::DataSet.new( [bx, bylabels_pos, blabels] ) do |ds|
 						ds.with = 'labels textcolor lt 1 rotate left font ",10"'

@@ -43,6 +43,15 @@ class Peptide < ActiveRecord::Base
     }
   }
 
+  def summary_assigned_ions_for_top_peaks_count(n)
+	psm_counts = [0]*(n+1)
+	self.psms.each do |psm|
+		assigned_ions_for_top_peaks_count = psm.count_assigned_ions_for_top_peaks(n)
+		psm_counts[assigned_ions_for_top_peaks_count] += 1
+	end
+	return psm_counts
+  end
+
   def count_max_values()
 	  max_values = []
 	  self.psms.each do |psm|
