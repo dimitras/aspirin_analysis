@@ -43,6 +43,12 @@ class Psm < ActiveRecord::Base
 	belongs_to :protein, :primary_key => "accno", :foreign_key => "accno"
 	has_many :conservations, :primary_key => "mrna_id", :foreign_key => "mrna_id"
 
+	def self.significant_peaks(n)
+		where("psms.count_assigned_ions_for_top_peaks(n) >= ?", n)
+	end
+
+	scope :cheap, significant_peaks(1)
+
 	def mod_letters_array()
 		return mod.split(/,/)
 	end
