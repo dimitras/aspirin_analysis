@@ -1,5 +1,5 @@
 <p id="notice"><%= notice %></p>
-
+<% tol = 1.0 %>
 <table>
 	<tr>
 		<td><b>Peptide:</b>  <%= @peptide.pep_seq %></td>
@@ -69,7 +69,7 @@
 		psms_number = @peptide.psms.length
 	%>
 	<tr id='bold_headers'>
-		<td>> Summary of the number of the assigned ions to the <%= top_peaks %> most intense peaks for all spectrums:</td>
+		<td>> Summary of the <%= top_peaks %> most intense peaks that correspond to assigned ions, for all spectrums:</td>
 	</tr>
 	<tr>
 		<td>
@@ -134,22 +134,37 @@
 
 		<tr>
 			<td colspan = 11>
-				<a href="http://nemesis.itmat.upenn.edu/aspirin/figures/<%= psm.plot_assigned_ions_through_spectrum %>" target="_blank"><img src="<%= "../figures/" + psm.plot_assigned_ions_through_spectrum %>" border=no/></a>
+				<% if tol == 0.5 %>
+					<a href="http://nemesis.itmat.upenn.edu/aspirin/figures/<%= psm.plot_assigned_ions_through_spectrum(psm.assigned_bions_with05tol_mzs_array, psm.assigned_bions_with05tol_intensities_array, psm.assigned_yions_with05tol_mzs_array, psm.assigned_yions_with05tol_intensities_array) %>" target="_blank"><img src="<%= "../figures/" + psm.plot_assigned_ions_through_spectrum(psm.assigned_bions_with05tol_mzs_array, psm.assigned_bions_with05tol_intensities_array, psm.assigned_yions_with05tol_mzs_array, psm.assigned_yions_with05tol_intensities_array) %>" border=no/></a>
+				<% elsif tol == 1.0 %>
+					<a href="http://nemesis.itmat.upenn.edu/aspirin/figures/<%= psm.plot_assigned_ions_through_spectrum(psm.assigned_bions_mzs_array, psm.assigned_bions_intensities_array, psm.assigned_yions_mzs_array, psm.assigned_yions_intensities_array) %>" target="_blank"><img src="<%= "../figures/" + psm.plot_assigned_ions_through_spectrum(psm.assigned_bions_mzs_array, psm.assigned_bions_intensities_array, psm.assigned_yions_mzs_array, psm.assigned_yions_intensities_array) %>" border=no/></a>
+				<% end %>
 			</td>
 		</tr>
 
-		<%
-		intensities = []
-		[psm.assigned_yions_intensities_array, psm.assigned_bions_intensities_array].each do |array|
-			array.each do |row|
-				row.each_with_index do |value, index|
-					if index > 0 && !value.nil?
-						intensities.push(value)
+		<%  intensities = []
+			if tol == 0.5
+				[psm.assigned_yions_with05tol_intensities_array, psm.assigned_bions_with05tol_intensities_array].each do |array|
+					array.each do |row|
+						row.each_with_index do |value, index|
+							if index > 0 && !value.nil?
+								intensities.push(value)
+							end
+						end
+					end
+				end
+			elsif tol == 1.0
+				[psm.assigned_yions_intensities_array, psm.assigned_bions_intensities_array].each do |array|
+					array.each do |row|
+						row.each_with_index do |value, index|
+							if index > 0 && !value.nil?
+								intensities.push(value)
+							end
+						end
 					end
 				end
 			end
-		end
-		max_intensities = intensities.sort! { |a,b| b <=> a }[0..2]
+			max_intensities = intensities.sort! { |a,b| b <=> a }[0..2]
 		%>
 
 		
@@ -157,8 +172,6 @@
 			<td colspan = 11>Matched fragment ions table</td>
 		</tr>
 
-
-		
 		<tr>
 			<td colspan=11>
 				<table border = 1>
@@ -171,7 +184,9 @@
 						<td>y+</td>
 						<td>y++</td>
 					</tr>
-					<% ionstable = psm.ionstable %>
+					<%  
+						ionstable = psm.ionstable(psm.assigned_bions_mzs_array, psm.assigned_bions_intensities_array, psm.assigned_yions_mzs_array, psm.assigned_yions_intensities_array)
+					%>
 					<% for i in 0..ionstable.length-1 %>
 					<tr>
 						<% for j in 0..ionstable[i].length-1 %>

@@ -2,32 +2,36 @@
 #
 # Table name: psms
 #
-#  id                                 :integer          not null, primary key
-#  pep_seq                            :string(255)
-#  query                              :string(255)
-#  accno                              :string(255)
-#  pep_score                          :float
-#  rep                                :string(255)
-#  mod                                :string(255)
-#  cutoff                             :float
-#  created_at                         :datetime         not null
-#  updated_at                         :datetime         not null
-#  mod_positions                      :string(255)
-#  title                              :string(255)
-#  charge                             :string(255)
-#  rtinseconds                        :string(255)
-#  mzs                                :binary
-#  intensities                        :binary
-#  mrna_id                            :string(255)
-#  mod_positions_in_protein           :string(255)
-#  conserved_mod_positions_in_protein :string(255)
-#  enzyme                             :text
-#  assigned_yions_mzs_table           :binary
-#  assigned_yions_intensities_table   :binary
-#  assigned_bions_mzs_table           :binary
-#  assigned_bions_intensities_table   :binary
-#  yions                              :binary
-#  bions                              :binary
+#  id                                         :integer          not null, primary key
+#  pep_seq                                    :string(255)
+#  query                                      :string(255)
+#  accno                                      :string(255)
+#  pep_score                                  :float
+#  rep                                        :string(255)
+#  mod                                        :string(255)
+#  cutoff                                     :float
+#  created_at                                 :datetime         not null
+#  updated_at                                 :datetime         not null
+#  mod_positions                              :string(255)
+#  title                                      :string(255)
+#  charge                                     :string(255)
+#  rtinseconds                                :string(255)
+#  mzs                                        :binary
+#  intensities                                :binary
+#  mrna_id                                    :string(255)
+#  mod_positions_in_protein                   :string(255)
+#  conserved_mod_positions_in_protein         :string(255)
+#  enzyme                                     :text
+#  assigned_yions_mzs_table                   :binary
+#  assigned_yions_intensities_table           :binary
+#  assigned_bions_mzs_table                   :binary
+#  assigned_bions_intensities_table           :binary
+#  yions                                      :binary
+#  bions                                      :binary
+#  assigned_yions_with05tol_mzs_table         :binary
+#  assigned_yions_with05tol_intensities_table :binary
+#  assigned_bions_with05tol_mzs_table         :binary
+#  assigned_bions_with05tol_intensities_table :binary
 #
 
 require 'rubygems'
@@ -36,7 +40,7 @@ require 'pep_dat'
 
 class Psm < ActiveRecord::Base
 	
-	attr_accessible :accno, :cutoff, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :mrna_id, :mod_positions_in_protein, :enzyme, :assigned_yions_mzs_table, :assigned_yions_intensities_table, :assigned_bions_mzs_table, :assigned_bions_intensities_table, :yions, :bions
+	attr_accessible :accno, :cutoff, :mod, :pep_seq, :pep_score, :query, :rep, :mod_positions, :title, :charge, :rtinseconds, :mzs, :intensities, :mrna_id, :mod_positions_in_protein, :enzyme, :assigned_yions_mzs_table, :assigned_yions_intensities_table, :assigned_bions_mzs_table, :assigned_bions_intensities_table, :yions, :bions, :assigned_yions_with05tol_mzs_table, :assigned_yions_with05tol_intensities_table, :assigned_bions_with05tol_mzs_table, :assigned_bions_with05tol_intensities_table
 
 	has_many :peptidepsms
   	has_many :peptides, :through => :peptidepsms
@@ -84,6 +88,14 @@ class Psm < ActiveRecord::Base
 	def assigned_yions_intensities_array()
 		return Marshal::restore(assigned_yions_intensities_table)
 	end
+
+	def assigned_yions_with05tol_mzs_array()
+		return Marshal::restore(assigned_yions_with05tol_mzs_table)
+	end
+
+	def assigned_yions_with05tol_intensities_array()
+		return Marshal::restore(assigned_yions_with05tol_intensities_table)
+	end
 	
 	##########################################################
 	# bions
@@ -99,6 +111,14 @@ class Psm < ActiveRecord::Base
 
 	def assigned_bions_intensities_array()
 		return Marshal::restore(assigned_bions_intensities_table)
+	end
+
+	def assigned_bions_with05tol_mzs_array()
+		return Marshal::restore(assigned_bions_with05tol_mzs_table)
+	end
+
+	def assigned_bions_with05tol_intensities_array()
+		return Marshal::restore(assigned_bions_with05tol_intensities_table)
 	end
 
 	##########################################################
@@ -162,9 +182,30 @@ class Psm < ActiveRecord::Base
 		end
 		return counter
 	end
+
+	# count how many of the top x peaks correspond to assigned ions
+	def number_of_top_x_peaks_matching_assigned_ions(n)
+		counter = 0
+		top_peaks_hash = {}
+		top_peaks = top_peaks(n)
+		top_peaks.each do |peak|
+			top_peaks_hash[peak] = nil
+		end
+		[assigned_yions_intensities_array, assigned_bions_intensities_array].each do |array|
+			array.each_with_index do |row, i|
+				row.each_with_index do |value, j|
+					if j > 0 && row[j] && top_peaks_hash.has_key?(row[j])
+						counter += 1
+						top_peaks_hash.delete(row[j])
+					end
+				end
+			end
+		end
+		return counter
+	end
 	
 	# The Matched fragment ions table similar to the Mascot one
-	def ionstable()
+	def ionstable(assigned_bions_mzs_array, assigned_bions_intensities_array, assigned_yions_mzs_array, assigned_yions_intensities_array)
 		ionstable = Array.new
 		aa = Array.new
 		y0 = Array.new
@@ -222,7 +263,7 @@ class Psm < ActiveRecord::Base
 	end
 
 	# Plot the spectrum
-	def plot_assigned_ions_through_spectrum()
+	def plot_assigned_ions_through_spectrum(assigned_bions_mzs_array, assigned_bions_intensities_array, assigned_yions_mzs_array, assigned_yions_intensities_array)
 		figures_folder = "public/figures/"
 		figure_filename = "fig_#{rep}_#{query}_#{pep_seq}.svg"
 		filename = figures_folder + figure_filename

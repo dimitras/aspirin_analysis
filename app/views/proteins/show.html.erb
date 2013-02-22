@@ -38,7 +38,7 @@
 </p>
 
 <p>
-	<b>Sequence:</b></br>
+	<b>Sequence:</b>
 	<div id = 'protein_seq_wrapper'>
 		<%= highlight_seq(@protein.seq, @psm.pep_seq, @psm.mod_positions_array) %></br>
 	</div>
@@ -53,10 +53,10 @@
 	<tr>
 		<td>
 			<div id='bold_headers'><%= conservation.species %></div>
-			<br/>
 			<div id = 'protein_seq_wrapper'>
 				<%= highlight_mod_in_species(conservation.seq, @psm.array_with_mod_positions_in_protein) %>
 			</div>
+			<br/>
 		</td>
 	</tr>
 	<% end %>

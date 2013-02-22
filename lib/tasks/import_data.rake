@@ -227,7 +227,7 @@ namespace :db do
 					psm = Psm.create(:accno => prot_accno, :cutoff => cutoff, :mod => modification.join(','), :pep_seq => peptide, :pep_score => pep_score, :query => query_no, :rep => replicate, :mod_positions => mod_positions.join(','), :title => title, :charge => charge, :rtinseconds => rtinseconds, :mzs => serialized_mzs, :intensities => serialized_intensities, :yions => serialized_yions, :bions => serialized_bions, :assigned_yions_mzs_table => serialized_assigned_yions_mzs_table, :assigned_yions_intensities_table => serialized_assigned_yions_intensities_table, :assigned_bions_mzs_table => serialized_assigned_bions_mzs_table, :assigned_bions_intensities_table => serialized_assigned_bions_intensities_table)
 
 					# find all peptides
-					peps = Peptide.where("cutoff >= ? AND pep_seq = ? AND experiment = ?" ,  psm.cutoff, peptide, experiment)
+					peps = Peptide.where("cutoff >= ? AND pep_seq = ? AND experiment = ?", psm.cutoff, peptide, experiment)
 
 					# feed join table
 					peps.each do |pep|
@@ -305,7 +305,34 @@ namespace :db do
 		end
 	end
 
-		
+	# ran on 31012013 (taskid 65186)
+	# USAGE: rake db:add_new_assigned_ions_to_psms --trace
+	desc "add assigned ions with tolerance=0.5 to the psms table"
+	task :add_new_assigned_ions_to_psms  => :environment do
+		psms = Psm.all
+		psms.each do |psm|
+			if !psm.peptides.first.nil? # why some psms are not linked to peptides? out of cutoff limits?
+				# because all peptides linked in a psm are of the same experiment
+				experiment = psm.peptides.first.experiment
+				# create new Pep and get the assigned ions for tolerance 0.5
+				pep = Pep_dat.new(psm.pep_seq, psm.mzs_array, psm.intensities_array, experiment, psm.mod_positions_array) 
+
+				assigned_yions_with05tol_mzs_table = pep.assigned_yions_mzs_table
+				assigned_yions_with05tol_intensities_table = pep.assigned_yions_intensities_table
+				assigned_bions_with05tol_mzs_table = pep.assigned_bions_mzs_table
+				assigned_bions_with05tol_intensities_table = pep.assigned_bions_intensities_table
+
+				serialized_assigned_yions_with05tol_mzs_table = Marshal::dump(assigned_yions_with05tol_mzs_table)
+				serialized_assigned_yions_with05tol_intensities_table = Marshal::dump(assigned_yions_with05tol_intensities_table)
+				serialized_assigned_bions_with05tol_mzs_table = Marshal::dump(assigned_bions_with05tol_mzs_table)
+				serialized_assigned_bions_with05tol_intensities_table = Marshal::dump(assigned_bions_with05tol_intensities_table)
+
+				# update with additional assigned ions the psms table
+				puts psm.id.to_s + " " + psm.pep_seq.to_s + " " + experiment.to_s
+				psm_update = Psm.update(psm.id, { :assigned_yions_with05tol_mzs_table => serialized_assigned_yions_with05tol_mzs_table, :assigned_yions_with05tol_intensities_table =>  serialized_assigned_yions_with05tol_intensities_table, :assigned_bions_with05tol_mzs_table => serialized_assigned_bions_with05tol_mzs_table, :assigned_bions_with05tol_intensities_table => serialized_assigned_bions_with05tol_intensities_table })
+			end
+		end
+	end
 
 	##################################################################
 	# proteins table

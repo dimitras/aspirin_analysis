@@ -1,13 +1,12 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.7'
-gem "railties", "~> 3.2.7"
+gem 'rails', '3.2.12'
+gem 'railties', '~> 3.2.12'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 gem 'sqlite3', '1.3.5'
-
 gem 'json'
 
 # Gems used only for assets and not required
@@ -19,12 +18,10 @@ group :assets do
 end
 
 gem 'jquery-rails'
-
 gem 'fastercsv'
 gem 'will_paginate', '~> 3.0'
 gem 'mascot-dat'
 gem 'gnuplot'
-
 gem 'annotate'
 
 # To use ActiveModel has_secure_password
