@@ -4,9 +4,7 @@ For visualization and review of mass spectrum peptide results.
 This web application uses Mascot server's raw results data and reproduces the visualization for peptide spectrum matches. The database contains peptides filtered by Aspirin experiment, modification and peptide expectancy.
 
 
-* Experiments
-	1. 3H Ace (only the acetylated ones)
-	2. Endogenous Ace
+- Experiments: 	1. 3H Ace (only the acetylated ones),	2. Endogenous Ace
 
 
 - Filtering the data
@@ -17,7 +15,7 @@ This web application uses Mascot server's raw results data and reproduces the vi
 	- Set a score system calculating the rank product and penalized rp, which is rank product multiplied by 10 for the minus replicates. Lower RP means more significant.
 
 
-* Extra analysis in sequence level, about conservation of the peptide modifications through different species. 
+** Extra analysis in sequence level, about conservation of the peptide modifications through different species. 
 
 
 ** For more details about the filtering and retrieving data, you may check this repository: https://github.com/dimitras/mascot-csv-filters
