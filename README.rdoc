@@ -19,4 +19,4 @@ This web application uses Mascot server's raw results data and reproduces the vi
 Find if the acetyl modification on specific amino acids of the peptides is conserved through different species. 
 
 
-# For more details about the filtering and retrieving data, you may check this repository: https://github.com/dimitras/mascot-csv-filters
+** For more details about the filtering and retrieving data, you may check this repository: https://github.com/dimitras/mascot-csv-filters
