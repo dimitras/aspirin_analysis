@@ -5,8 +5,8 @@ This web application uses Mascot server's raw results data and reproduces the vi
 
 
 - Experiments
-	- 3H Ace (only the acetylated ones)
-	- Endogenous Ace
+1. 3H Ace (only the acetylated ones)
+2. Endogenous Ace
 
 
 - Filtering the data
