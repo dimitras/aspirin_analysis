@@ -47,6 +47,7 @@ class Psm < ActiveRecord::Base
 	belongs_to :protein, :primary_key => "accno", :foreign_key => "accno"
 	has_many :conservations, :primary_key => "mrna_id", :foreign_key => "mrna_id"
 
+	# TODO : fix cheap var scope and check if this works
 	def self.significant_peaks(n)
 		where("psms.count_assigned_ions_for_top_peaks(n) >= ?", n)
 	end
@@ -168,6 +169,7 @@ class Psm < ActiveRecord::Base
 		return array_ranked_descending(intensities_array)[0..(n-1)]
 	end
 
+	# this method is cancelled from the next one
 	def count_assigned_ions_for_top_peaks(n)
 		counter = 0
 		top_peaks = top_peaks(n)
@@ -256,8 +258,7 @@ class Psm < ActiveRecord::Base
 		y2.reverse!
 		for i in 0..bions_array.length
 			ionstable[i] = [aa[i], b0[i], b1[i], b2[i], y0[i], y1[i], y2[i]]
-		end
-			
+		end	
 		
 		return ionstable
 	end

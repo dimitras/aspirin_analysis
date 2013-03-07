@@ -9,9 +9,14 @@ class PeptidesController < ApplicationController
     else
       cutoff = params[:cutoff]
     end
-
-    @peptides = Peptide.filtered(params[:experiment], cutoff)
     
+    # @pep = Peptide.find(params[:id])
+    # if !params[:experiment] || params[:experiment] == ''
+    #   @peptides = Peptide.common_through_experiments(@pep.pep_seq, cutoff) if Peptide.common_through_experiments(@pep.pep_seq, cutoff).size > 1
+    # else
+      @peptides = Peptide.filtered(params[:experiment], cutoff)
+    # end
+
     if params[:length_threshold] && params[:length_threshold] != ''
        @peptides = @peptides.longer_than(params[:length_threshold].to_i)
     end
@@ -28,6 +33,9 @@ class PeptidesController < ApplicationController
     end
   end
 
+  def search
+    @peptides = Peptide.search params[:search]
+  end
   
   # GET /peptides/1
   # GET /peptides/1.json

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121113172633) do
+ActiveRecord::Schema.define(:version => 20130307152709) do
 
   create_table "conservations", :force => true do |t|
     t.string   "mrna_id"
@@ -41,13 +41,15 @@ ActiveRecord::Schema.define(:version => 20121113172633) do
     t.string   "pep_seq"
     t.float    "rank_product"
     t.float    "penalized_rp"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
     t.float    "cutoff"
     t.string   "experiment"
+    t.integer  "top_peaks_assigned"
   end
 
   add_index "peptides", ["pep_seq"], :name => "index_peptides_on_pep_seq"
+  add_index "peptides", ["top_peaks_assigned"], :name => "index_peptides_on_top_peaks_assigned"
 
   create_table "proteinpsms", :force => true do |t|
     t.integer  "protein_id"
@@ -77,8 +79,8 @@ ActiveRecord::Schema.define(:version => 20121113172633) do
     t.string   "rep"
     t.string   "mod"
     t.float    "cutoff"
-    t.datetime "created_at",                         :null => false
-    t.datetime "updated_at",                         :null => false
+    t.datetime "created_at",                                 :null => false
+    t.datetime "updated_at",                                 :null => false
     t.string   "mod_positions"
     t.string   "title"
     t.string   "charge"
@@ -95,6 +97,10 @@ ActiveRecord::Schema.define(:version => 20121113172633) do
     t.binary   "assigned_bions_intensities_table"
     t.binary   "yions"
     t.binary   "bions"
+    t.binary   "assigned_yions_with05tol_mzs_table"
+    t.binary   "assigned_yions_with05tol_intensities_table"
+    t.binary   "assigned_bions_with05tol_mzs_table"
+    t.binary   "assigned_bions_with05tol_intensities_table"
   end
 
   add_index "psms", ["pep_seq"], :name => "index_psms_on_pep_seq"

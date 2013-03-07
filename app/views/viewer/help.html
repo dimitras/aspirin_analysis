@@ -7,18 +7,21 @@
 		<li>peptide expectancy threshold (none, 0.05, 0.5)</li>
 		<li>maximum peptide length (if no value is entered, the filter has no effect)</li>
 		<li>enzyme T or TG (if none value is entered, the filter has no effect)</li>
+		<!-- 
 		<li>peptide spectrum matches (all, with significant peaks only) 
-			<br/>The condition 'with significant peaks only' shows the peptides with at least one PSM that has at least one assigned ion among the top 5 peaks in the spectrum.</li>
+			<br/>The condition 'with significant peaks only' shows the peptides with at least one PSM that has at least one assigned ion among the top 5 peaks in the spectrum.</li> 
+		-->
 	</ol>
 </p>
 <br/>
 
 <h1>About the peptide list</h1>
 <p>
-	The peptide list is sorted by ascending rank product. The most significant peptide appears first in the list.
+	The peptide list is firstly sorted by descending the number of the assigned ions on the top 3 peaks of the best spectrum match, and secondly by ascending the penalized rank product score. The most significant peptide appears first in the list.
 	<ol>
 		<li>Rank Product: score for each peptide to sort them by significance (the lowest the better). <br/> The + replicates are being sorted by descending the pep_score, while the - reps are being sorted by ascending the pep_score. This is done to get lowest (worst) rank for the peptides located in - replicates (penalty-like scoring). Each peptide found in a replicate could be found more than once, so the rank of the hit with the highest pep_score was chosen. If a peptide is not found in a replicate means that it was highly impossible so it gets by default the lowest rank in the replicate.</li>
 		<li>Penalty: additional penalty applied on the rank product.<br/>Multiplied by 10 the ranks in the - replicates. This penalty is not applied if a peptide is not found in a replicate, it just gets by default the lowest rank in the replicate.</li>
+		<li>Assigned ions on top 3 peaks of best spectrum match: additional sorting to identify significant peptides (the highest the count, the most confident it is).<br/>Counted the assigned ions on the 3 top peaks of each spectrum matches. Kept the best spectrum match.</li>
 	</ol>
 </p>
 <br/>

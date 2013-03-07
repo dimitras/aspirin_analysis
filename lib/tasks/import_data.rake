@@ -119,6 +119,17 @@ namespace :db do
 	end
 
 
+	# USAGE: rake db:update_peptides_with_top_peaks_assigned --trace
+	desc "feed peptides with top peaks assigned counts"
+	task :update_peptides_with_top_peaks_assigned  => :environment do
+		peptides = Peptide.all
+		peptides.each do |peptide|
+			# puts peptide.id.to_s + " " + peptide.pep_seq.to_s + ' ' + peptide.experiment.to_s + ' ' + peptide.cutoff.to_s + ' ' + peptide.score_by_top_peaks_assigned(3).to_s
+			pep_update = Peptide.update(peptide.id, { :top_peaks_assigned => peptide.score_by_top_peaks_assigned(3) })
+		end
+	end
+
+
 	##################################################################
 	# psms table
 	##################################################################

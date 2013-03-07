@@ -1,10 +1,16 @@
 <br/>
 <p>
-	Welcome to our aspirin analysis database.
+	Welcome to our ADA (aspirin data analysis) database.
 	<br/>
-	To view the list of the peptides you have to choose the experiment and any of the additional filters.
-	You may click on each peptide to view further information.
+	- To view the list of the peptides you have to choose the experiment and/or any of the additional filters (peptide expectancy threshold, max peptide length, enzyme).
+    <br/>
+    - The generated peptides list is firstly sorted by the number of the assigned ions on the top 3 peaks of the best spectrum match, and secondly by the penalized rank product score.
+    <br/>
+	- To view further information, click on each peptide.
 </p>
+
+
+
 <table>
     <tr>
         <th>
@@ -15,7 +21,7 @@
                                         ["3H-Acetylation",'3h-Acetylation'],
                                         ["Endogenous-Acetylation",'Endogenous-Acetylation']
                                    ] %>
-                <%= select_tag(:experiment, options_for_select(experiments_array, :selected => params[:experiment]), :include_blank => true, :onchange => 'this.form.submit();') %>
+                <%= select_tag(:experiment, options_for_select(experiments_array, :selected => params[:experiment]), :include_blank => "all", :onchange => 'this.form.submit();') %>
 
                 <%= label_tag(:cutoff, "Peptide expectancy threshold:") %>
                 <% cutoffs_array = [
@@ -26,7 +32,7 @@
                 <%= select_tag(:cutoff, options_for_select(cutoffs_array, :selected => params[:cutoff]), :onchange => 'this.form.submit();') %>
 
                 <%= label_tag(:length_threshold, "Max peptide length:") %>
-                <%= text_field_tag(:length_threshold, params[:length_threshold], :placeholder => params[:length_threshold], :size => 3) %>
+                <%= number_field_tag(:length_threshold, params[:length_threshold], :placeholder => params[:length_threshold], :size => 3, :min => 1) %>
                 <%= submit_tag('Go') %>
 
                 <%= label_tag(:enzyme, "Enzyme:") %>
@@ -35,7 +41,8 @@
                                     ["T",'T'],
                                     ["TG",'TG']
                                    ] %>
-                <%= select_tag(:enzyme, options_for_select(enzymes_array, :selected => params[:enzyme]), :include_blank => true, :onchange => 'this.form.submit();') %>
+                <%= select_tag(:enzyme, options_for_select(enzymes_array, :selected => params[:enzyme]), :onchange => 'this.form.submit();') %>
+
             <% end%>
           </div>
         </th>
@@ -45,12 +52,18 @@
     </tr>
 </table>
 
+<div class="digg_pagination">
+  <%= will_paginate @posts, :container => false %>
+</div>
+<br/>
+
 <table border = 1>
     <% if params[:experiment] %>
     	<tr>
     		<th>Peptide</th>
     		<th>Rank Product</th>
     		<th>Penalized Rank Product</th>
+            <th>Assigned ions on top 3 peaks</br>of best spectrum match</th>
     	</tr>
 
     	<% @peptides.each do |peptide| %>
@@ -58,11 +71,13 @@
         		<td><%= link_to(peptide.pep_seq, peptide_path(peptide)) %></td>
         		<td><%= peptide.rank_product %></td>
         		<td><%= peptide.penalized_rp %></td>
+                <td><%= peptide.top_peaks_assigned %></td>
     		</tr>
     	<% end %>
     <% end %>
 </table>
 
+<br/>
 <div class="digg_pagination">
   <div clas="page_info">
     <%= page_entries_info @posts %>

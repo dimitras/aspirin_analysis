@@ -17,14 +17,18 @@ class Peptide < ActiveRecord::Base
   self.per_page = 50
 
   # accessible attributes for mass assignment
-  attr_accessible :penalized_rp, :pep_seq, :rank_product, :cutoff, :experiment
+  attr_accessible :penalized_rp, :pep_seq, :rank_product, :cutoff, :experiment, :top_peaks_assigned
 
   # default ordering for the model
-  default_scope order("penalized_rp ASC")
+  default_scope order("top_peaks_assigned DESC, penalized_rp ASC")
 
   # define assosiations
   has_many :peptidepsms
   has_many :psms, :through => :peptidepsms, :order => 'psms.pep_score DESC'
+
+  scope :common_through_experiments, lambda { |pep_seq, cutoff|
+    where("peptides.pep_seq = ? AND peptides.cutoff = ?", pep_seq, cutoff)
+  }
 
   scope :filtered, lambda { |experiment, cutoff|
     where("peptides.experiment = ? AND peptides.cutoff = ?", experiment, cutoff)
@@ -43,7 +47,18 @@ class Peptide < ActiveRecord::Base
     }
   }
 
-  def summary_assigned_ions_for_top_peaks_count(n)
+
+  # new score for each peptide, counting the assigned ions for 3 top peaks in at least one spectrum match
+  def score_by_top_peaks_assigned(n) # n peaks
+    assigned_ions_for_top_peaks_count_array = []
+    self.psms.each do |psm|
+      assigned_ions_for_top_peaks_count = psm.number_of_top_x_peaks_matching_assigned_ions(n)
+      assigned_ions_for_top_peaks_count_array << assigned_ions_for_top_peaks_count
+    end
+    return assigned_ions_for_top_peaks_count_array.max
+  end
+
+  def summary_assigned_ions_for_top_peaks_count(n) # n peaks
   	psm_counts = [0]*(n+1)
   	self.psms.each do |psm|
   		assigned_ions_for_top_peaks_count = psm.number_of_top_x_peaks_matching_assigned_ions(n)
@@ -55,17 +70,17 @@ class Peptide < ActiveRecord::Base
   def count_max_values()
 	  max_values = []
 	  self.psms.each do |psm|
-		max_values << psm.max_ion_coordinates
+		  max_values << psm.max_ion_coordinates
 	  end
 	  
 	  max_values_counts = {}
 	  max_values.each do |value|
-		max_value_str = value.join('|')
-		if !max_values_counts.has_key? max_value_str
-			max_values_counts[max_value_str] = 1
-		else
-			max_values_counts[max_value_str] += 1
-		end
+  		max_value_str = value.join('|')
+  		if !max_values_counts.has_key? max_value_str
+  			max_values_counts[max_value_str] = 1
+  		else
+  			max_values_counts[max_value_str] += 1
+  		end
 	  end
 	  
 	  return max_values_counts
